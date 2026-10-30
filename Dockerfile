@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/dotnet/sdk:8.0.415-jammy
 
-ARG TARGETARCH
 ARG NODE_VERSION=22.20.0
 ARG RUST_VERSION=1.90.0
 ARG GO_VERSION=1.23.6
@@ -24,7 +23,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TINYGOROOT=/opt/tinygo \
     PATH=/opt/swift/usr/bin:/opt/tinygo/bin:/opt/zig:/opt/go/bin:/opt/cargo/bin:/opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-RUN test "$TARGETARCH" = amd64 || { echo "Build with --platform linux/amd64" >&2; exit 1; }
+RUN test "$(dpkg --print-architecture)" = amd64 || { echo "This image requires amd64; build with --platform linux/amd64 or use an x86_64 VM." >&2; exit 1; }
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash binaryen build-essential ca-certificates clang cmake curl git \
     libatomic1 libcurl4-openssl-dev libedit2 libicu70 libncurses5 libpython3.10 \

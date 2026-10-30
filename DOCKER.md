@@ -17,6 +17,12 @@ docker run --rm --init --platform linux/amd64 \
   cloud-language-lab-tests
 ```
 
+The architecture guard checks the base image's architecture directly, so it
+works with BuildKit and the classic Docker builder. On a native x86_64 Linux
+VM, older Docker versions that lack `--platform` can omit that flag. ARM64
+machines still need an amd64 image and working emulation; setting a build
+argument cannot convert an ARM64 image into an amd64 one.
+
 Only reports are mounted from the host. Do not mount the entire workspace over
 `/workspace`: doing so would hide the Linux npm dependencies, Python environment,
 and other dependencies prepared in the image. Source changes require rebuilding
