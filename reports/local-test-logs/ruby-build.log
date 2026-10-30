@@ -1,0 +1,4 @@
+Building component ruby with `sh scripts/build-ruby.sh`
+Finished building all Spin components
+
+Exit code: 0; signal: null; timeout: false

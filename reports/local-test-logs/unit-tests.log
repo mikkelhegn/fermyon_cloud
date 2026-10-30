@@ -1,0 +1,18 @@
+
+> cloud-language-lab@0.1.0 test
+> node --test tests/*.test.mjs
+
+component=javascript event=request
+✔ each documented language has a distinct component and HTTP route (1.160958ms)
+✔ Cloud-unsupported triggers and service chaining are excluded (0.057375ms)
+✔ secrets and outbound capabilities are limited to their consumers (0.111666ms)
+✔ profile selection preserves configuration and removes unused routes (0.448125ms)
+✔ JavaScript handler returns JSON and rejects writes (20.929958ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 80.905792

@@ -1,0 +1,1 @@
+printfn "Content-Type: application/json\r\n\r\n{\"language\":\"F#\",\"runtime\":\"WAGI\"}"

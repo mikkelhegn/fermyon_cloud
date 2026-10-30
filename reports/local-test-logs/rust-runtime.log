@@ -1,0 +1,14 @@
+Logging component stdio to "/Users/mhegnhoj/code/fermyon_cloud/.spin/logs/"
+Storing default SQLite data to "/Users/mhegnhoj/code/fermyon_cloud/.spin/sqlite_db.db".
+Storing default key-value data to "/Users/mhegnhoj/code/fermyon_cloud/.spin/sqlite_key_value.db".
+
+Serving http://127.0.0.1:58546
+Available Routes:
+  rust: http://127.0.0.1:58546
+  rust: http://127.0.0.1:58546/healthz
+  rust: http://127.0.0.1:58546/api/rust (wildcard)
+component=rust method=GET path=/api/rust
+
+GET /api/rust
+HTTP 200
+{"composed_greeting":"Hello, Rust, from a composed component","features":["variables","key-value","sqlite","outbound-http","ai","redis","mysql","postgres","component-dependencies","wasi-config","wasi-keyvalue"],"greeting":"Hello from Fermyon Cloud","language":"Rust"}

@@ -1,0 +1,25 @@
+name: Check
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  sdk-profile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip1,wasm32-wasip2
+      - uses: fermyon/actions/spin/setup@v1
+        with:
+          version: v3.4.1
+      - run: npm ci
+      - run: npm test
+      - run: node scripts/select-components.mjs rust,javascript,typescript
+      - run: spin build -f spin.local.toml

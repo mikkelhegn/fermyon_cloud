@@ -1,0 +1,4 @@
+Building component python with `sh scripts/build-python.sh`
+Error: Build command for component python failed with status Signaled(9)
+
+Exit code: 1; signal: null; timeout: false

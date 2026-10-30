@@ -1,0 +1,17 @@
+.spin/
+.venv/
+node_modules/
+**/target/
+**/build/
+**/bin/
+**/obj/
+**/__pycache__/
+*.wasm
+*.db
+*.db-shm
+*.db-wal
+.env*
+runtime-config.toml
+spin.local.toml
+components/ruby/runtime/
+.DS_Store

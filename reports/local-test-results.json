@@ -1,0 +1,156 @@
+{
+  "generatedAt": "2026-10-30T10:55:01.014Z",
+  "platform": "Darwin arm64",
+  "spin": "spin 4.2.5 (e09d7d5 2026-10-23)",
+  "toolVersions": {
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "node": "v26.12.1",
+    "npm": "11.20.0",
+    "python3": "Python 3.9.6",
+    ".venv/bin/python": "Python 3.9.6",
+    ".venv/bin/componentize-py": "componentize-py 0.17.2",
+    "go": "Not installed",
+    "tinygo": "Not installed",
+    "zig": "Not installed",
+    "dotnet": "Not installed",
+    "grain": "Not installed",
+    "swiftc": "swift-driver version: 1.168.6 Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx26.0",
+    "clang": "Homebrew clang version 23.1.4\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/llvm/23.1.4/bin\nConfiguration file: /opt/homebrew/Cellar/llvm/23.1.4/etc/clang/arm64-apple-darwin25.cfg",
+    "ruby": "ruby 2.6.10p210 (2022-04-12 revision 67958) [universal.arm64e-darwin25]"
+  },
+  "unitTests": "PASS",
+  "results": [
+    {
+      "component": "rust",
+      "language": "Rust",
+      "source": "NOT RUN",
+      "build": "PASS",
+      "runtime": "PASS",
+      "result": "PASS",
+      "detail": "HTTP 200; language=Rust"
+    },
+    {
+      "component": "javascript",
+      "language": "JavaScript",
+      "source": "NOT RUN",
+      "build": "PASS",
+      "runtime": "PASS",
+      "result": "PASS",
+      "detail": "HTTP 200; language=JavaScript"
+    },
+    {
+      "component": "typescript",
+      "language": "TypeScript",
+      "source": "NOT RUN",
+      "build": "PASS",
+      "runtime": "PASS",
+      "result": "PASS",
+      "detail": "HTTP 200; language=TypeScript"
+    },
+    {
+      "component": "python",
+      "language": "Python",
+      "source": "PASS",
+      "build": "FAIL",
+      "runtime": "NOT RUN",
+      "result": "FAIL",
+      "detail": "Error: Build command for component python failed with status Signaled(9)"
+    },
+    {
+      "component": "go",
+      "language": "Go",
+      "source": "NOT RUN",
+      "build": "BLOCKED",
+      "runtime": "NOT RUN",
+      "result": "BLOCKED",
+      "detail": "Missing prerequisites: go, tinygo"
+    },
+    {
+      "component": "c",
+      "language": "C",
+      "source": "PASS",
+      "build": "BLOCKED",
+      "runtime": "NOT RUN",
+      "result": "BLOCKED",
+      "detail": "Missing prerequisites: zig"
+    },
+    {
+      "component": "cpp",
+      "language": "C++",
+      "source": "PASS",
+      "build": "BLOCKED",
+      "runtime": "NOT RUN",
+      "result": "BLOCKED",
+      "detail": "Missing prerequisites: zig"
+    },
+    {
+      "component": "csharp",
+      "language": "C#",
+      "source": "NOT RUN",
+      "build": "BLOCKED",
+      "runtime": "NOT RUN",
+      "result": "BLOCKED",
+      "detail": "Missing prerequisites: dotnet"
+    },
+    {
+      "component": "fsharp",
+      "language": "F#",
+      "source": "NOT RUN",
+      "build": "BLOCKED",
+      "runtime": "NOT RUN",
+      "result": "BLOCKED",
+      "detail": "Missing prerequisites: dotnet"
+    },
+    {
+      "component": "grain",
+      "language": "Grain",
+      "source": "NOT RUN",
+      "build": "BLOCKED",
+      "runtime": "NOT RUN",
+      "result": "BLOCKED",
+      "detail": "Missing prerequisites: grain"
+    },
+    {
+      "component": "ruby",
+      "language": "Ruby",
+      "source": "PASS",
+      "build": "PASS",
+      "runtime": "PASS",
+      "result": "PASS",
+      "detail": "HTTP 200; language=Ruby"
+    },
+    {
+      "component": "swift",
+      "language": "Swift",
+      "source": "PASS",
+      "build": "FAIL",
+      "runtime": "NOT RUN",
+      "result": "FAIL",
+      "detail": "error: unableToFind(tool: \"swift-autolink-extract\")"
+    },
+    {
+      "component": "zig",
+      "language": "Zig",
+      "source": "NOT RUN",
+      "build": "BLOCKED",
+      "runtime": "NOT RUN",
+      "result": "BLOCKED",
+      "detail": "Missing prerequisites: zig"
+    },
+    {
+      "component": "php",
+      "language": "PHP",
+      "source": "NOT RUN",
+      "build": "PROVIDED",
+      "runtime": "PASS",
+      "result": "PASS",
+      "detail": "HTTP 200; language=PHP"
+    }
+  ],
+  "totals": {
+    "PASS": 5,
+    "FAIL": 2,
+    "BLOCKED": 7
+  }
+}

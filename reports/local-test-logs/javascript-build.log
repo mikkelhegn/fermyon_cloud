@@ -1,0 +1,9 @@
+Building component javascript with `npm run build:javascript`
+
+> cloud-language-lab@0.1.0 build:javascript
+> node scripts/build-js.mjs javascript
+
+No changes detected in source file and target World. Skipping componentization.
+Finished building all Spin components
+
+Exit code: 0; signal: null; timeout: false

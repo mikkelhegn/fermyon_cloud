@@ -1,0 +1,15 @@
+package lab:greeting@1.0.0;
+
+interface formatter {
+    greet: func(language: string) -> string;
+}
+
+world consumer {
+    import formatter;
+    import wasi:config/store@0.2.0-draft-2024-09-27;
+    import wasi:keyvalue/store@0.2.0-draft2;
+}
+
+world provider {
+    export formatter;
+}

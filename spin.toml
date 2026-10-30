@@ -1,0 +1,179 @@
+spin_manifest_version = 2
+
+[application]
+name = "cloud-language-lab"
+version = "0.1.0"
+description = "Polyglot Fermyon Cloud capability lab"
+
+[variables]
+greeting = { default = "Hello from Fermyon Cloud" }
+api_token = { default = "", secret = true }
+redis_url = { default = "", secret = true }
+mysql_url = { default = "", secret = true }
+postgres_url = { default = "", secret = true }
+redis_host = { default = "redis://localhost:6379" }
+mysql_host = { default = "mysql://localhost:3306" }
+postgres_host = { default = "postgres://localhost:5432" }
+
+[[trigger.http]]
+route = "/"
+component = "rust"
+[[trigger.http]]
+route = "/healthz"
+component = "rust"
+[[trigger.http]]
+route = "/api/rust/..."
+component = "rust"
+[[trigger.http]]
+route = "/api/javascript"
+component = "javascript"
+[[trigger.http]]
+route = "/api/typescript"
+component = "typescript"
+[[trigger.http]]
+route = "/api/python/..."
+component = "python"
+[[trigger.http]]
+route = "/api/go"
+component = "go"
+
+[component.rust]
+source = "components/rust/target/wasm32-wasip1/release/cloud_features.wasm"
+key_value_stores = ["default"]
+sqlite_databases = ["default"]
+ai_models = ["llama2-chat", "codellama-instruct", "all-minilm-l6-v2"]
+allowed_outbound_hosts = ["https://example.com", "{{ redis_host }}", "{{ mysql_host }}", "{{ postgres_host }}"]
+[component.rust.variables]
+greeting = "{{ greeting }}"
+api_token = "{{ api_token }}"
+redis_url = "{{ redis_url }}"
+mysql_url = "{{ mysql_url }}"
+postgres_url = "{{ postgres_url }}"
+[component.rust.build]
+command = "cargo build --manifest-path components/formatter/Cargo.toml --target wasm32-wasip2 --release && cargo build --manifest-path components/rust/Cargo.toml --target wasm32-wasip1 --release"
+watch = ["components/rust/src/**/*.rs", "components/rust/Cargo.toml", "components/formatter/src/**/*.rs", "components/formatter/wit/**/*.wit"]
+[component.rust.dependencies]
+"lab:greeting/formatter@1.0.0" = { path = "components/formatter/target/wasm32-wasip2/release/greeting_formatter.wasm" }
+
+[component.javascript]
+source = "components/javascript/app.wasm"
+allowed_outbound_hosts = []
+[component.javascript.build]
+command = "npm run build:javascript"
+watch = ["components/javascript/*.js"]
+
+[component.typescript]
+source = "components/typescript/app.wasm"
+allowed_outbound_hosts = []
+[component.typescript.build]
+command = "npm run build:typescript"
+watch = ["components/typescript/*.ts"]
+
+[component.python]
+source = "components/python/app.wasm"
+allowed_outbound_hosts = []
+key_value_stores = ["default"]
+[component.python.variables]
+api_token = "{{ api_token }}"
+[component.python.build]
+command = "sh scripts/build-python.sh"
+watch = ["components/python/*.py", "components/python/requirements.txt"]
+
+[component.go]
+source = "components/go/app.wasm"
+allowed_outbound_hosts = []
+[component.go.build]
+command = "cd components/go && tinygo build -target=wasi -gc=leaking -no-debug -o app.wasm ."
+watch = ["components/go/*.go", "components/go/go.mod"]
+
+[[trigger.http]]
+route = "/api/c"
+component = "c"
+executor = { type = "wagi" }
+[[trigger.http]]
+route = "/api/cpp"
+component = "cpp"
+executor = { type = "wagi" }
+[[trigger.http]]
+route = "/api/csharp"
+component = "csharp"
+[[trigger.http]]
+route = "/api/fsharp"
+component = "fsharp"
+executor = { type = "wagi" }
+[[trigger.http]]
+route = "/api/grain"
+component = "grain"
+executor = { type = "wagi" }
+[[trigger.http]]
+route = "/api/ruby"
+component = "ruby"
+executor = { type = "wagi", argv = "${SCRIPT_NAME} /main.rb" }
+[[trigger.http]]
+route = "/api/swift"
+component = "swift"
+executor = { type = "wagi" }
+[[trigger.http]]
+route = "/api/zig"
+component = "zig"
+executor = { type = "wagi" }
+[[trigger.http]]
+route = "/api/php"
+component = "php"
+executor = { type = "wagi" }
+
+[component.c]
+source = "components/c/app.wasm"
+allowed_outbound_hosts = []
+[component.c.build]
+command = "zig build-exe components/c/main.c -target wasm32-wasi -O ReleaseSmall -lc -femit-bin=components/c/app.wasm"
+
+[component.cpp]
+source = "components/cpp/app.wasm"
+allowed_outbound_hosts = []
+[component.cpp.build]
+command = "zig build-exe components/cpp/main.cpp -target wasm32-wasi -O ReleaseSmall -lc -lc++ -fno-exceptions -femit-bin=components/cpp/app.wasm"
+
+[component.csharp]
+source = "components/csharp/bin/Release/net8.0/CloudCSharp.wasm"
+allowed_outbound_hosts = []
+[component.csharp.build]
+command = "dotnet build components/csharp/Component.csproj -c Release"
+
+[component.fsharp]
+source = "components/fsharp/bin/Release/net8.0/CloudFSharp.wasm"
+allowed_outbound_hosts = []
+[component.fsharp.build]
+command = "dotnet build components/fsharp/Component.fsproj -c Release"
+
+[component.grain]
+source = "components/grain/app.wasm"
+allowed_outbound_hosts = []
+[component.grain.build]
+command = "grain compile --release --use-start-section -o components/grain/app.wasm components/grain/main.gr"
+
+[component.ruby]
+source = "components/ruby/runtime/usr/local/bin/ruby"
+allowed_outbound_hosts = []
+environment = { HOME = "/", RUBYLIB = "/usr/local/lib/ruby/4.0.0" }
+files = [{ source = "components/ruby/main.rb", destination = "/main.rb" }, { source = "components/ruby/runtime/usr/local/lib", destination = "/usr/local/lib" }]
+[component.ruby.build]
+command = "sh scripts/build-ruby.sh"
+
+[component.swift]
+source = "components/swift/app.wasm"
+allowed_outbound_hosts = []
+[component.swift.build]
+command = "swiftc -target wasm32-unknown-wasi -Osize components/swift/main.swift -o components/swift/app.wasm"
+
+[component.zig]
+source = "components/zig/app.wasm"
+allowed_outbound_hosts = []
+[component.zig.build]
+command = "zig build-exe components/zig/main.zig -target wasm32-wasi -O ReleaseSmall -femit-bin=components/zig/app.wasm"
+
+[component.php]
+source = { url = "https://github.com/vmware-labs/webassembly-language-runtimes/releases/download/php%2F8.2.6%2B20230714-11be424/php-cgi-8.2.6-slim.wasm", digest = "sha256:4fd2e8c42ae529ba72f88a0f1e46de1fc69a4b4f01e01fedd65ca966b8ffe6fa" }
+allowed_outbound_hosts = []
+files = [{ source = "components/php/index.php", destination = "/index.php" }]
+environment = { SCRIPT_FILENAME = "/index.php" }

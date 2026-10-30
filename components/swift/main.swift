@@ -1,0 +1,1 @@
+print("Content-Type: application/json\r\n\r\n{\"language\":\"Swift\",\"runtime\":\"WAGI\"}")

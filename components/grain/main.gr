@@ -1,0 +1,7 @@
+module Main
+
+provide let _start = () => {
+  print("Content-Type: application/json")
+  print("")
+  print("{\"language\":\"Grain\",\"runtime\":\"WAGI\"}")
+}

@@ -1,0 +1,38 @@
+name: Deploy To Fermyon Cloud
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fermyon-cloud-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: fermyon-cloud
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip1,wasm32-wasip2
+      - uses: fermyon/actions/spin/setup@v1
+        with:
+          version: v3.4.1
+          plugins: cloud
+      - run: npm ci
+      - run: npm test
+      - run: node scripts/select-components.mjs rust,javascript,typescript
+      - run: spin build -f spin.local.toml
+      - name: Deploy SDK profile
+        env:
+          SPIN_AUTH_TOKEN: ${{ secrets.FERMYON_CLOUD_TOKEN }}
+          DEMO_API_TOKEN: ${{ secrets.DEMO_API_TOKEN }}
+          KV_STORE: ${{ vars.FERMYON_KV_STORE || 'cloud-language-lab' }}
+          SQLITE_DATABASE: ${{ vars.FERMYON_SQLITE_DATABASE || 'cloud-language-lab' }}
+        run: |
+          test "${#DEMO_API_TOKEN}" -ge 24
+          spin cloud deploy -f spin.local.toml --variable api_token="$DEMO_API_TOKEN" --link "kv:default=$KV_STORE" --link "sqlite:default=$SQLITE_DATABASE"

@@ -1,0 +1,13 @@
+Warning: HTTP route /api/php uses the WAGI executor.
+Warning: WAGI will be deprecated in a future version of Spin.
+To provide feedback, please visit https://github.com/spinframework/spin/issues/3520.
+
+Logging component stdio to "/Users/mhegnhoj/code/fermyon_cloud/.spin/logs/"
+
+Serving http://127.0.0.1:58563
+Available Routes:
+  php: http://127.0.0.1:58563/api/php
+
+GET /api/php
+HTTP 200
+{"language":"PHP","runtime":"WAGI"}
