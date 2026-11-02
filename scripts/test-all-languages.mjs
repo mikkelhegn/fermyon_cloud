@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
-import { mkdir, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -77,12 +77,15 @@ async function testRuntime(language) {
   const filename = resolve(root, `.spin-language-test-${language}.toml`);
   const port = await freePort();
   const base = `http://127.0.0.1:${port}`;
+  const componentLogDirectory = resolve(logDirectory, `${language}-component-logs`);
   let child;
   let output = "";
+  await rm(componentLogDirectory, { recursive: true, force: true });
+  await mkdir(componentLogDirectory, { recursive: true });
   await writeFile(filename, stringify(selectComponents(manifest, [language])));
   try {
     await new Promise((fulfill, reject) => {
-      child = spawn("spin", ["up", "-f", filename, "--listen", `127.0.0.1:${port}`], {
+      child = spawn("spin", ["up", "-f", filename, "--listen", `127.0.0.1:${port}`, "--log-dir", componentLogDirectory, "--truncate-logs"], {
         cwd: root, detached: true, stdio: ["ignore", "pipe", "pipe"],
         env: { ...process.env, SPIN_VARIABLE_API_TOKEN: randomUUID() },
       });
@@ -117,6 +120,9 @@ async function testRuntime(language) {
         stop(child, "SIGKILL");
         await closed;
       }
+    }
+    for (const log of await readdir(componentLogDirectory)) {
+      output += `\nComponent log: ${log}\n${await readFile(resolve(componentLogDirectory, log), "utf8")}\n`;
     }
     await writeFile(resolve(logDirectory, `${language}-runtime.log`), output);
     await unlink(filename);
