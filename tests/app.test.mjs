@@ -51,6 +51,12 @@ test("C# disables the Wizer pass that fails on its generated Wasm module", () =>
   assert.match(csharpProject, /<UseWizer>false<\/UseWizer>/);
 });
 
+test("F# build overrides the pinned WASI SDK with memory-safe version 19", () => {
+  const command = manifest.component.fsharp.build.command;
+  assert.ok(command.includes("-p:WasiSdkVersion=19.0"));
+  assert.ok(command.includes("-p:WasiSdkUrl=https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-19/wasi-sdk-19.0-linux.tar.gz"));
+});
+
 test("secrets and outbound capabilities are limited to their consumers", () => {
   for (const variable of ["api_token", "redis_url", "mysql_url", "postgres_url"]) {
     assert.equal(manifest.variables[variable].secret, true);

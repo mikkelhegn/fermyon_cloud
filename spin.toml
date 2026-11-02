@@ -144,7 +144,7 @@ command = "dotnet build components/csharp/Component.csproj -c Release"
 source = "components/fsharp/bin/Release/net8.0/CloudFSharp.wasm"
 allowed_outbound_hosts = []
 [component.fsharp.build]
-command = "dotnet build components/fsharp/Component.fsproj -c Release"
+command = "dotnet build components/fsharp/Component.fsproj -c Release -p:WasiSdkVersion=19.0 -p:WasiSdkUrl=https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-19/wasi-sdk-19.0-linux.tar.gz"
 
 [component.grain]
 source = "components/grain/app.wasm"
