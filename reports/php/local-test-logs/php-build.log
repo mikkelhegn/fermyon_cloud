@@ -1,0 +1,4 @@
+None of the components have a build command.
+For information on specifying a build command, see https://spinframework.dev/build#setting-up-for-spin-build.
+
+Exit code: 0; signal: null; timeout: false

@@ -1,0 +1,12 @@
+Logging component stdio to "/workspace/.spin/logs/"
+Preparing Wasm modules is taking a few seconds...
+
+
+Serving http://127.0.0.1:43105
+Available Routes:
+  typescript: http://127.0.0.1:43105/api/typescript
+component=typescript event=request
+
+GET /api/typescript
+HTTP 200
+{"language":"TypeScript","runtime":"WASI Preview 2"}

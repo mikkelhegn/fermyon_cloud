@@ -1,0 +1,21 @@
+Logging component stdio to "/workspace/.spin/logs/"
+
+Serving http://127.0.0.1:37879
+Available Routes:
+  go: http://127.0.0.1:37879/api/go
+2026-11-02T13:00:19.728394Z ERROR spin_trigger_http::server: Error processing request: error while executing at wasm backtrace:
+    0:  0x4461c - main!canonical_abi_realloc
+    1:  0x571ce - <unknown>!allocate_stack
+    2:  0x546ea - <unknown>!cabi_export_realloc
+
+Caused by:
+    wasm trap: wasm `unreachable` instruction executed
+
+GET /api/go
+HTTP 500
+
+
+TEST ERROR: Expected values to be strictly equal:
+
+500 !== 200
+

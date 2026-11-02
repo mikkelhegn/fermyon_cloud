@@ -1,0 +1,466 @@
+Building component cpp with `zig build-exe components/cpp/main.cpp -target wasm32-wasi -O ReleaseSmall -lc -lc++ -femit-bin=components/cpp/app.wasm`
+error: sub-compilation of libcxx failed
+    /opt/zig/lib/libcxx/include/shared_mutex:128:6: note: "<shared_mutex> is not supported since libc++ has been configured without support for threads."
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:158:3: note: unknown type name 'mutex'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:159:3: note: unknown type name 'condition_variable'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:160:3: note: unknown type name 'condition_variable'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:267:15: note: use of undeclared identifier 'mutex'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:270:7: note: unknown type name 'cv_status'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:270:56: note: use of undeclared identifier '__lk'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:273:23: note: use of undeclared identifier 'cv_status'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:280:7: note: unknown type name 'cv_status'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:280:56: note: use of undeclared identifier '__lk'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:283:23: note: use of undeclared identifier 'cv_status'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:295:15: note: use of undeclared identifier 'mutex'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:299:7: note: unknown type name 'cv_status'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:299:56: note: use of undeclared identifier '__lk'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:303:23: note: use of undeclared identifier 'cv_status'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:329:54: note: unknown type name 'defer_lock_t'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:333:54: note: unknown type name 'try_to_lock_t'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/include/shared_mutex:336:54: note: unknown type name 'adopt_lock_t'
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/shared_mutex.cpp:10:
+    /opt/zig/lib/libcxx/src/shared_mutex.cpp:23:15: note: use of undeclared identifier 'mutex'
+    :1:1: note: too many errors emitted, stopping now
+    /opt/zig/lib/libcxx/src/mutex_destructor.cpp:30:3: note: unknown type name '__libcpp_mutex_t'
+    /opt/zig/lib/libcxx/include/thread:92:4: note: "<thread> is not supported since libc++ has been configured without support for threads."
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:34: note: unknown type name 'condition_variable'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:55: note: unknown type name 'mutex'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:64:3: note: unknown type name '__libcpp_tls_key'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:30: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:55: note: expected ';' at end of declaration list
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:6: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:31: note: expected ';' at end of declaration
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:54: note: use of undeclared identifier '_Tp'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:95:67: note: no member named '__at_thread_exit' in '__thread_specific_ptr<_Tp>'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:111:8: note: no member named '__libcpp_tls_set' in namespace 'std'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:34: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:73: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:124:50: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:149:3: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:155:11: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:156:11: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:158:51: note: use of undeclared identifier '_LIBCPP_NULL_THREAD'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:168:86: note: use of undeclared identifier '_LIBCPP_NULL_THREAD'
+    /opt/zig/lib/libcxx/src/condition_variable.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/condition_variable.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    :1:1: note: too many errors emitted, stopping now
+    /opt/zig/lib/libcxx/include/future:368:4: note: "<future> is not supported since libc++ has been configured without support for threads."
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/thread:92:4: note: "<thread> is not supported since libc++ has been configured without support for threads."
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:34: note: unknown type name 'condition_variable'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:55: note: unknown type name 'mutex'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:64:3: note: unknown type name '__libcpp_tls_key'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:30: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:55: note: expected ';' at end of declaration list
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:6: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:31: note: expected ';' at end of declaration
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:54: note: use of undeclared identifier '_Tp'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:95:67: note: no member named '__at_thread_exit' in '__thread_specific_ptr<_Tp>'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:111:8: note: no member named '__libcpp_tls_set' in namespace 'std'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:34: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:73: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:124:50: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:149:3: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:155:11: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:156:11: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:158:51: note: use of undeclared identifier '_LIBCPP_NULL_THREAD'
+    /opt/zig/lib/libcxx/src/thread.cpp:12:10: note: in file included from /opt/zig/lib/libcxx/src/thread.cpp:12:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    :1:1: note: too many errors emitted, stopping now
+    /opt/zig/lib/libcxx/src/condition_variable_destructor.cpp:26:3: note: unknown type name '__libcpp_condvar_t'
+    /opt/zig/lib/libcxx/src/mutex.cpp:28:6: note: use of undeclared identifier 'mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:34:6: note: use of undeclared identifier 'mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:36:6: note: use of undeclared identifier 'mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:45:1: note: use of undeclared identifier 'recursive_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:51:1: note: use of undeclared identifier 'recursive_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:57:6: note: use of undeclared identifier 'recursive_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:63:6: note: use of undeclared identifier 'recursive_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:70:6: note: use of undeclared identifier 'recursive_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:74:1: note: use of undeclared identifier 'timed_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:76:1: note: use of undeclared identifier 'timed_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:78:6: note: use of undeclared identifier 'timed_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:85:6: note: use of undeclared identifier 'timed_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:94:6: note: use of undeclared identifier 'timed_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:102:1: note: use of undeclared identifier 'recursive_timed_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:104:1: note: use of undeclared identifier 'recursive_timed_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:106:6: note: use of undeclared identifier 'recursive_timed_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:121:6: note: use of undeclared identifier 'recursive_timed_mutex'
+    /opt/zig/lib/libcxx/src/mutex.cpp:134:6: note: use of undeclared identifier 'recursive_timed_mutex'
+    /opt/zig/lib/libcxx/include/future:368:4: note: "<future> is not supported since libc++ has been configured without support for threads."
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/thread:92:4: note: "<thread> is not supported since libc++ has been configured without support for threads."
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:34: note: unknown type name 'condition_variable'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:55: note: unknown type name 'mutex'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:64:3: note: unknown type name '__libcpp_tls_key'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:30: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:55: note: expected ';' at end of declaration list
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:6: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:31: note: expected ';' at end of declaration
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:54: note: use of undeclared identifier '_Tp'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:95:67: note: no member named '__at_thread_exit' in '__thread_specific_ptr<_Tp>'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:111:8: note: no member named '__libcpp_tls_set' in namespace 'std'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:34: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:73: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:124:50: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:149:3: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:155:11: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:156:11: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:158:51: note: use of undeclared identifier '_LIBCPP_NULL_THREAD'
+    /opt/zig/lib/libcxx/src/future.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/future.cpp:9:
+    /opt/zig/lib/libcxx/include/future:397:10: note: in file included from /opt/zig/lib/libcxx/include/future:397:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    :1:1: note: too many errors emitted, stopping now
+    /opt/zig/lib/libcxx/include/barrier:51:4: note: "<barrier> is not supported since libc++ has been configured without support for threads."
+    /opt/zig/lib/libcxx/src/barrier.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:9:
+    /opt/zig/lib/libcxx/include/barrier:148:55: note: use of undeclared identifier '__libcpp_timed_backoff_policy'
+    /opt/zig/lib/libcxx/src/barrier.cpp:9:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:9:
+    /opt/zig/lib/libcxx/include/thread:92:4: note: "<thread> is not supported since libc++ has been configured without support for threads."
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:34: note: unknown type name 'condition_variable'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:55: note: unknown type name 'mutex'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:64:3: note: unknown type name '__libcpp_tls_key'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:30: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:55: note: expected ';' at end of declaration list
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:6: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:31: note: expected ';' at end of declaration
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:54: note: use of undeclared identifier '_Tp'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:95:67: note: no member named '__at_thread_exit' in '__thread_specific_ptr<_Tp>'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:111:8: note: no member named '__libcpp_tls_set' in namespace 'std'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:34: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:73: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:124:50: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:149:3: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:155:11: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:156:11: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/barrier.cpp:10:10: note: in file included from /opt/zig/lib/libcxx/src/barrier.cpp:10:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    :1:1: note: too many errors emitted, stopping now
+    /opt/zig/lib/libcxx/include/thread:92:4: note: "<thread> is not supported since libc++ has been configured without support for threads."
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:34: note: unknown type name 'condition_variable'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:58:55: note: unknown type name 'mutex'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:64:3: note: unknown type name '__libcpp_tls_key'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:30: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:75:55: note: expected ';' at end of declaration list
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:6: note: variable has incomplete type 'void'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:31: note: expected ';' at end of declaration
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:89:54: note: use of undeclared identifier '_Tp'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:95:67: note: no member named '__at_thread_exit' in '__thread_specific_ptr<_Tp>'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:111:8: note: no member named '__libcpp_tls_set' in namespace 'std'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:34: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:115:73: note: use of undeclared identifier '__thread_id'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:124:50: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:149:3: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:155:11: note: unknown type name '__thread_id'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:156:11: note: unknown type name '__libcpp_thread_t'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:158:51: note: use of undeclared identifier '_LIBCPP_NULL_THREAD'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    /opt/zig/lib/libcxx/include/__thread/thread.h:168:86: note: use of undeclared identifier '_LIBCPP_NULL_THREAD'
+    /opt/zig/lib/libcxx/src/atomic.cpp:13:10: note: in file included from /opt/zig/lib/libcxx/src/atomic.cpp:13:
+    /opt/zig/lib/libcxx/include/thread:98:10: note: in file included from /opt/zig/lib/libcxx/include/thread:98:
+    /opt/zig/lib/libcxx/include/__thread/jthread.h:18:10: note: in file included from /opt/zig/lib/libcxx/include/__thread/jthread.h:18:
+    :1:1: note: too many errors emitted, stopping now
+Error: Build command for component cpp failed with status Exited(1)
+
+Exit code: 1; signal: null; timeout: false

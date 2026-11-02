@@ -34,6 +34,12 @@ test("Go resolves module checksums in the workspace before compiling", () => {
   assert.match(manifest.component.go.build.command, /^cd components\/go && go mod tidy && tinygo build /);
 });
 
+test("Go builds a WASI reactor for Spin's exported HTTP handler", () => {
+  const command = manifest.component.go.build.command;
+  assert.ok(command.split(/\s+/).includes("-target=wasi"));
+  assert.ok(command.split(/\s+/).includes("-buildmode=c-shared"));
+});
+
 test("secrets and outbound capabilities are limited to their consumers", () => {
   for (const variable of ["api_token", "redis_url", "mysql_url", "postgres_url"]) {
     assert.equal(manifest.variables[variable].secret, true);

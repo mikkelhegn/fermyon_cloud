@@ -1,0 +1,13 @@
+Warning: HTTP route /api/fsharp uses the WAGI executor.
+Warning: WAGI will be deprecated in a future version of Spin.
+To provide feedback, please visit https://github.com/spinframework/spin/issues/3520.
+
+Logging component stdio to "/workspace/.spin/logs/"
+Error: failed to resolve dependencies for component "fsharp"
+
+Caused by:
+   0: an error occurred when preparing dependencies
+   1: failed to componentize "/workspace/components/fsharp/bin/Release/net8.0/CloudFSharp.wasm"
+   2: This Wasm module appears to have been compiled with wasi-sdk version <19 which contains a critical memory safety bug. For more information, see: https://github.com/spinframework/spin/issues/2552
+
+TEST ERROR: Spin exited before readiness: code=1, signal=null

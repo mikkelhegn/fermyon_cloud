@@ -1,0 +1,4 @@
+Building component grain with `grain compile --release --use-start-section -o components/grain/app.wasm components/grain/main.gr`
+Finished building all Spin components
+
+Exit code: 0; signal: null; timeout: false

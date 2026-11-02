@@ -1,0 +1,15 @@
+Warning: HTTP route /api/php uses the WAGI executor.
+Warning: WAGI will be deprecated in a future version of Spin.
+To provide feedback, please visit https://github.com/spinframework/spin/issues/3520.
+
+Logging component stdio to "/workspace/.spin/logs/"
+Preparing Wasm modules is taking a few seconds...
+
+
+Serving http://127.0.0.1:39531
+Available Routes:
+  php: http://127.0.0.1:39531/api/php
+
+GET /api/php
+HTTP 200
+{"language":"PHP","runtime":"WAGI"}

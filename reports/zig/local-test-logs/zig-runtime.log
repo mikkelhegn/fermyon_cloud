@@ -1,0 +1,14 @@
+Warning: HTTP route /api/zig uses the WAGI executor.
+Warning: WAGI will be deprecated in a future version of Spin.
+To provide feedback, please visit https://github.com/spinframework/spin/issues/3520.
+
+Logging component stdio to "/workspace/.spin/logs/"
+
+Serving http://127.0.0.1:40547
+Available Routes:
+  zig: http://127.0.0.1:40547/api/zig
+
+GET /api/zig
+HTTP 200
+{"language":"Zig","runtime":"WAGI"}
+
