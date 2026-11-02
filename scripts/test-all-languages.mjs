@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
-import { mkdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse, stringify } from "smol-toml";
 import { selectComponents } from "./select-components.mjs";
+import { combineReports, renderReport } from "./language-reports.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const reportDirectory = resolve(root, process.env.LANGUAGE_REPORT_DIRECTORY ?? "reports");
@@ -187,66 +188,17 @@ const report = {
   toolVersions, unitTests: suite.code === 0 ? "PASS" : "FAIL", results,
   totals: Object.fromEntries(["PASS", "FAIL", "BLOCKED"].map((status) => [status, results.filter((row) => row.result === status).length])),
 };
-await writeFile(resolve(reportDirectory, "local-test-results.json"), JSON.stringify(report, null, 2) + "\n");
-const escape = (value) => String(value).replaceAll("|", "\\|").replaceAll("\n", " ");
-const rows = results.map((row) => `| ${row.language} | ${row.build} | ${row.runtime} | ${row.source} | **${row.result}** | ${escape(row.detail)} ([build log](local-test-logs/${row.component}-build.log)) |`).join("\n");
-const versionRows = Object.entries(toolVersions).map(([command, version]) => `| ${command} | ${escape(version)} |`).join("\n");
-await writeFile(resolve(reportDirectory, "local-test-results.md"), `# Local Language Test Results
-
-Generated: ${report.generatedAt}
-
-Environment: ${report.platform}; ${report.spin}; Node ${process.version}.
-
-## Summary
-
-${results.length} languages checked: **${report.totals.PASS} passed**, **${report.totals.FAIL} failed**, **${report.totals.BLOCKED} blocked**.
-Shared manifest and JavaScript handler tests: **${report.unitTests}**.
-
-## Per-Language Results
-
-| Language | Wasm build | Spin HTTP | Native syntax only | Result | Evidence |
-| --- | --- | --- | --- | --- | --- |
-${rows}
-
-## Follow-Up Actions
-
-- Python: inspect the componentizer's signal-9 termination before claiming a successful build. Signal 9 establishes process termination, not its cause. Use Python 3.10+ as documented; compare the system and venv versions in the inventory below before retrying.
-- Swift: install a WASI-capable SwiftWasm toolchain including \`swift-autolink-extract\`; the installed Apple Swift compiler is not a complete WASI build environment.
-- Go: install Go and TinyGo, then resolve the Go module dependencies.
-- C, C++, Zig: install the manifest-compatible Zig 0.13.0 compiler.
-- C#, F#: install .NET 8 and the experimental WASI prerequisites; C# also requires Wizer.
-- Grain: install a Grain compiler supporting the manifest's WASI build options.
-- Rerun the complete matrix after installing prerequisites. A syntax-only PASS does not unblock a missing Wasm toolchain.
-
-## Tool Inventory
-
-| Tool | Observed version |
-| --- | --- |
-${versionRows}
-
-## Method
-
-- Run each available component build independently with \`spin build -f spin.toml -c <component>\`.
-- Missing prerequisites are BLOCKED, not passes or application failures.
-- Verify local build artifacts exist and have Wasm magic; PHP uses its manifest-pinned remote artifact instead.
-- Ruby and PHP use prebuilt Wasm interpreters (PROVIDED), executing the packaged application sources during the HTTP tests; they are not local compiler builds.
-- Start each built/provided component in an isolated Spin manifest on a temporary loopback port.
-- Require HTTP 200, JSON content type, and the exact expected language from \`GET /api/<component>\`.
-- For Rust, also require a greeting returned by the composed WIT dependency.
-- Capture build, source, and runtime output in [local-test-logs](local-test-logs/).
-- Stop every temporary server and remove temporary manifests after its test. Existing development servers are not modified.
-
-Native syntax checks are not Wasm compilation or Spin runtime tests. A successful local Spin ${report.spin.split(" ")[1]} test does not certify Fermyon Cloud compatibility.
-
-## Scope And Limits
-
-This run tests language compilation and HTTP handling, not Cloud deployment, AI model availability, external database credentials, Cloud quotas, or DNS. Python cross-language KV and the full Rust feature smoke suite are separate checks. No external service credentials are required or logged. A FAIL identifies an observed failure in this environment, not necessarily a language-source defect. See individual logs for root-cause evidence.
-
-## Reproduce
-
-\`node scripts/test-all-languages.mjs\`
-
-For a single-language diagnostic: \`node scripts/test-all-languages.mjs --languages=rust\`. Each run replaces these summary files with the selected run's results.
-`);
-console.log(`Report: ${resolve(reportDirectory, "local-test-results.md")} (${report.totals.PASS} pass, ${report.totals.FAIL} fail, ${report.totals.BLOCKED} blocked)`);
+const jsonFilename = resolve(reportDirectory, "local-test-results.json");
+const temporary = `${jsonFilename}.${randomUUID()}.tmp`;
+await writeFile(temporary, JSON.stringify(report, null, 2) + "\n");
+await rename(temporary, jsonFilename);
+if (process.env.LANGUAGE_COMBINE_REPORTS === "1") {
+  const directory = resolve(root, "reports");
+  if (await combineReports(directory, Object.keys(manifest.component))) {
+    console.log(`Combined report: ${resolve(directory, "local-test-results.md")}`);
+  }
+} else {
+  await writeFile(resolve(reportDirectory, "local-test-results.md"), renderReport([{ report, logPrefix: "local-test-logs" }]));
+}
+console.log(`Results: ${jsonFilename} (${report.totals.PASS} pass, ${report.totals.FAIL} fail, ${report.totals.BLOCKED} blocked)`);
 process.exitCode = results.some((row) => row.result !== "PASS") || suite.code !== 0 ? 1 : 0;

@@ -8,6 +8,7 @@ x-build: &language-build
 x-environment: &language-environment
   LANGUAGE_BUILD_TIMEOUT_MS: ${LANGUAGE_BUILD_TIMEOUT_MS:-900000}
   LANGUAGE_STARTUP_TIMEOUT_MS: ${LANGUAGE_STARTUP_TIMEOUT_MS:-300000}
+  LANGUAGE_COMBINE_REPORTS: "1"
 
 x-language: &language
   platform: linux/amd64
@@ -31,9 +32,10 @@ services:
       args:
         TEST_UID: ${TEST_UID:-1000}
         TEST_GID: ${TEST_GID:-1000}
-    entrypoint: ["node"]
-    command: ["--version"]
+    entrypoint: ["node", "scripts/language-reports.mjs"]
+    command: ["--prepare"]
     volumes:
+      - .:/workspace
       - node-dependencies:/workspace/node_modules
 
   rust:

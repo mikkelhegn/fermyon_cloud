@@ -1,4 +1,0 @@
-Building component c with `zig build-exe components/c/main.c -target wasm32-wasi -O ReleaseSmall -lc -femit-bin=components/c/app.wasm`
-Finished building all Spin components
-
-Exit code: 0; signal: null; timeout: false

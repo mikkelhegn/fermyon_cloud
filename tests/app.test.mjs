@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import { parse } from "smol-toml";
 import { selectComponents } from "../scripts/select-components.mjs";
+import { combineReports, prepareReports } from "../scripts/language-reports.mjs";
 
 const manifest = parse(await readFile(new URL("../spin.toml", import.meta.url), "utf8"));
 const languages = ["rust", "javascript", "typescript", "python", "go", "c", "cpp", "csharp", "fsharp", "grain", "ruby", "swift", "zig", "php"];
@@ -52,6 +55,38 @@ test("profile selection preserves configuration and removes unused routes", () =
   assert.equal(Object.keys(manifest.component).length, languages.length);
   assert.throws(() => selectComponents(manifest, ["missing"]), /Unknown component/);
   assert.throws(() => selectComponents(manifest, []), /at least one/);
+});
+
+test("combined report waits for every language and links failures to their logs", async (context) => {
+  const directory = await mkdtemp(join(tmpdir(), "language-reports-"));
+  context.after(() => rm(directory, { recursive: true, force: true }));
+  const selected = ["python", "go"];
+  const makeReport = (component, result) => ({
+    generatedAt: "2026-11-02T00:00:00.000Z", platform: "Linux x86_64", spin: "spin 4.2.5",
+    unitTests: component === "go" ? "FAIL" : "PASS", toolVersions: { node: "v22.20.0", swiftc: "Not installed" },
+    results: [{ component, language: component, build: result, runtime: "NOT RUN", source: "NOT RUN", result, detail: "test | detail\nnext" }],
+  });
+  await mkdir(join(directory, "python"));
+  await writeFile(join(directory, "python/local-test-results.json"), JSON.stringify(makeReport("python", "PASS")));
+  assert.equal(await combineReports(directory, selected), false);
+  await assert.rejects(readFile(join(directory, "local-test-results.md")), { code: "ENOENT" });
+  await mkdir(join(directory, "go"));
+  await writeFile(join(directory, "go/local-test-results.json"), JSON.stringify(makeReport("go", "FAIL")));
+  await writeFile(join(directory, "python/local-test-results.md"), "old per-language report");
+  assert.equal(await combineReports(directory, selected), true);
+  await assert.rejects(readFile(join(directory, "python/local-test-results.md")), { code: "ENOENT" });
+  const markdown = await readFile(join(directory, "local-test-results.md"), "utf8");
+  assert.match(markdown, /2 languages checked: \*\*1 passed\*\*, \*\*1 failed\*\*, \*\*0 blocked\*\*/);
+  assert.ok(markdown.includes("go/local-test-logs/go-build.log"));
+  assert.ok(markdown.includes("Shared manifest and JavaScript handler tests: **FAIL**"));
+  assert.ok(markdown.includes("test \\| detail next"));
+  assert.ok(!markdown.includes("signal-9"));
+  assert.ok(!markdown.includes("Not installed"));
+  await writeFile(join(directory, "python/local-test-results.md"), "old report");
+  await prepareReports(directory, selected);
+  for (const filename of ["local-test-results.md", "python/local-test-results.md", "python/local-test-results.json", "go/local-test-results.json"]) {
+    await assert.rejects(readFile(join(directory, filename)), { code: "ENOENT" });
+  }
 });
 
 globalThis.addEventListener = () => {};

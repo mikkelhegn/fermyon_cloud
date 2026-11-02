@@ -17,10 +17,17 @@ docker compose ps -a
 ```
 
 Compose builds `base` before dependent language images. The base service
-initializes the Node dependency volume and exits successfully; each language
+initializes the Node dependency volume, clears previous generated summaries,
+and exits successfully; each language
 then runs the shared unit tests, its own build, and an isolated Spin HTTP test.
 Services run concurrently and stop after testing. No ports or credentials are
 needed.
+
+After all 14 language JSON results are written, the last finishing service
+creates one combined Markdown report at `reports/local-test-results.md`, even
+when tests fail. Language containers do not create individual Markdown reports.
+If a container crashes before writing its JSON, the combined report is not
+created; inspect `docker compose ps -a` and container output for the missing run.
 
 To build and test just one language, with a meaningful test exit code:
 
@@ -32,7 +39,7 @@ docker compose up --exit-code-from python python
 For a subset, use `docker compose build rust javascript typescript` followed by
 `docker compose up rust javascript typescript`.
 Plain `docker compose up` is not an aggregate test exit code: inspect
-`docker compose ps -a` and the per-language reports. Each language exits 0 only
+`docker compose ps -a` and the combined report. Each language exits 0 only
 when its shared tests and language checks pass; exit 1 means failure or blocked
 prerequisites. Use `--exit-code-from` only for single-language runs, because it
 stops other containers when a service exits.
@@ -55,10 +62,19 @@ docker compose run --rm --entrypoint bash python
   and preserving the image's Python 3.10 environment.
 - Each service has a private anonymous `/workspace/.spin` volume so databases and
   logs do not collide between services or modify host Spin state.
-- Reports are isolated under `reports/<language>/`: `local-test-results.md`,
-  `local-test-results.json`, and `local-test-logs/`. Parallel services do not
-  overwrite each other's reports. Host runs still default to `reports/`; the
-  runner accepts `LANGUAGE_REPORT_DIRECTORY` to override this.
+- JSON results and logs remain isolated under `reports/<language>/` as
+  `local-test-results.json` and `local-test-logs/`. Only the combined Markdown
+  report is written at `reports/local-test-results.md`, with links into those
+  log directories and follow-up actions based on actual failures.
+- The base service removes old summary JSON and Markdown files at the start of
+  each invocation, including legacy per-language Markdown reports. Existing
+  logs are retained. Run the entire matrix to generate the combined report;
+  selected-language invocations produce only their JSON results and logs.
+- To regenerate the combined Markdown from an existing complete set of results,
+  run `docker compose run --rm --no-deps --entrypoint node javascript scripts/language-reports.mjs`.
+  `--no-deps` prevents the base preparation step from clearing those results.
+- Direct host runs still write JSON and Markdown to `reports/`; the runner
+  accepts `LANGUAGE_REPORT_DIRECTORY` to override this.
 
 Named dependency volumes are seeded on first use, not refreshed on rebuild.
 After changing npm dependencies or Python requirements, recreate them:
