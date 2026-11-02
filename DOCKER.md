@@ -1,124 +1,129 @@
 # Containerized Language Tests
 
-The Dockerfile installs the prerequisites for all 14 components in an Ubuntu
-22.04 / Linux amd64 test environment. It uses Python 3.10 instead of macOS's
-Python 3.9, a full SwiftWasm compiler including `swift-autolink-extract`, and
-the experimental .NET 8 WASI build dependencies.
+Each of the 14 languages has a Dockerfile under `docker/` and a matching service
+in `compose.yaml`. The root `Dockerfile` supplies only shared Ubuntu 22.04,
+Node.js, Spin, and npm dependencies. Language images install their own toolchains.
+These are one-shot build/test services, not persistent application servers.
 
 ## Build And Run
 
-From the repository root:
+Use Docker Compose 2.17+ with BuildKit (required for `additional_contexts`):
 
 ```sh
-docker build --platform linux/amd64 -t cloud-language-lab-tests .
 mkdir -p reports
-docker run --rm --init --platform linux/amd64 \
-  --mount type=bind,source="$PWD/reports",target=/workspace/reports \
-  cloud-language-lab-tests
+docker compose build
+docker compose up
+docker compose ps -a
 ```
 
-The architecture guard checks the base image's architecture directly, so it
-works with BuildKit and the classic Docker builder. On a native x86_64 Linux
-VM, older Docker versions that lack `--platform` can omit that flag. ARM64
-machines still need an amd64 image and working emulation; setting a build
-argument cannot convert an ARM64 image into an amd64 one.
+Compose builds `base` before dependent language images. The base service
+initializes the Node dependency volume and exits successfully; each language
+then runs the shared unit tests, its own build, and an isolated Spin HTTP test.
+Services run concurrently and stop after testing. No ports or credentials are
+needed.
 
-Only reports are mounted from the host. Do not mount the entire workspace over
-`/workspace`: doing so would hide the Linux npm dependencies, Python environment,
-and other dependencies prepared in the image. Source changes require rebuilding
-the image; Docker reuses unchanged toolchain and dependency layers.
-
-The reports appear in `reports/local-test-results.md`,
-`reports/local-test-results.json`, and `reports/local-test-logs/` on the host.
-Exit code 0 means every selected language and the shared tests passed. Exit code
-1 means at least one test failed or was blocked; reports are still written.
-No ports need to be published. Every HTTP test uses a temporary loopback port
-inside the container, and its temporary server is stopped afterward.
-
-To test one component:
+To build and test just one language, with a meaningful test exit code:
 
 ```sh
-docker run --rm --init --platform linux/amd64 \
-  --mount type=bind,source="$PWD/reports",target=/workspace/reports \
-  cloud-language-lab-tests --languages=python
+docker compose build python
+docker compose up --exit-code-from python python
 ```
 
-Each invocation replaces the summary reports with that run's selection.
+For a subset, use `docker compose build rust javascript typescript` followed by
+`docker compose up rust javascript typescript`.
+Plain `docker compose up` is not an aggregate test exit code: inspect
+`docker compose ps -a` and the per-language reports. Each language exits 0 only
+when its shared tests and language checks pass; exit 1 means failure or blocked
+prerequisites. Use `--exit-code-from` only for single-language runs, because it
+stops other containers when a service exits.
 
-For an interactive diagnostic shell:
+For a diagnostic shell after building the chosen image:
 
 ```sh
-docker run --rm -it --platform linux/amd64 --entrypoint bash cloud-language-lab-tests
+docker compose run --rm --entrypoint bash python
 ```
 
-The image runs as the non-root `tester` user (UID/GID 1000 by default). On Linux,
-make the reports directory writable by that user or set `TEST_UID` and `TEST_GID`
-at build time to your host user's IDs. For example, in a POSIX shell:
+## Shared Filesystem
+
+- Every language bind-mounts the repository at `/workspace`. Source edits are
+  immediately visible; built Wasm artifacts are shared and appear on the host.
+  Rebuild images for toolchain or dependency changes, not ordinary source edits.
+- The shared `node-dependencies` volume overlays `/workspace/node_modules`,
+  hiding host dependencies and preserving Linux npm packages from the image.
+  Language services mount this volume read-only.
+- Python mounts `python-environment` at `/workspace/.venv`, hiding host virtualenvs
+  and preserving the image's Python 3.10 environment.
+- Each service has a private anonymous `/workspace/.spin` volume so databases and
+  logs do not collide between services or modify host Spin state.
+- Reports are isolated under `reports/<language>/`: `local-test-results.md`,
+  `local-test-results.json`, and `local-test-logs/`. Parallel services do not
+  overwrite each other's reports. Host runs still default to `reports/`; the
+  runner accepts `LANGUAGE_REPORT_DIRECTORY` to override this.
+
+Named dependency volumes are seeded on first use, not refreshed on rebuild.
+After changing npm dependencies or Python requirements, recreate them:
 
 ```sh
-docker build --platform linux/amd64 \
-  --build-arg TEST_UID="$(id -u)" --build-arg TEST_GID="$(id -g)" \
-  -t cloud-language-lab-tests .
+docker compose down --volumes
+docker compose build
+docker compose up
 ```
 
-In fish, command substitutions use `(id -u)` and `(id -g)` instead of `$()`.
+This removes container dependency volumes and private Spin state, not the shared
+repository, generated Wasm artifacts, or reports. Do not run two instances of
+the same language service or host builds against this tree simultaneously: they
+would write the same build outputs and reports. Compiler outputs are shared
+with the host; clean a language's generated outputs when switching between host
+and Linux toolchains if necessary.
+
+## Permissions And Resources
+
+Images run as non-root `tester` (UID/GID 1000 by default). On Linux the repository
+and reports must be writable by that user. Set host IDs before building/running:
+
+```sh
+export TEST_UID="$(id -u)" TEST_GID="$(id -g)"
+docker compose build
+docker compose up
+```
+
+In fish, use `set -gx TEST_UID (id -u)` and `set -gx TEST_GID (id -g)`.
+Recreate dependency volumes if changing IDs after initialization.
+
+All images target `linux/amd64`; Apple Silicon requires emulation. Swift and .NET
+remain large. Allow several GB of disk and at least 8 GB of Docker VM RAM for
+the full matrix. On smaller VMs build serially using
+`docker compose --parallel 1 build` and test one language at a time.
+.NET retains the 512 MiB GC heap cap and sequential NuGet restore.
+
+Timeouts default to 15 minutes per build and 5 minutes per startup. Override
+`LANGUAGE_BUILD_TIMEOUT_MS` and `LANGUAGE_STARTUP_TIMEOUT_MS` in your shell or a
+local `.env` file; Compose forwards them to every language service.
 
 ## Toolchain Pins
 
 | Tool | Version |
 | --- | --- |
-| .NET SDK | 8.0.415, Ubuntu Jammy image |
-| Node.js | 22.20.0 |
-| Rust | 1.90.0 with WASI P1 and P2 targets |
+| Node.js / Spin (shared) | 22.20.0 / 4.2.5 |
+| Rust | 1.90.0, WASI P1 and P2 targets |
 | Go / TinyGo | 1.23.6 / 0.35.0 |
-| Zig | 0.13.0 for C, C++, and Zig |
-| Spin | 4.2.5 |
+| Zig (C, C++, Zig) | 0.13.0 |
+| .NET SDK (C#, F#) | 8.0.415, Ubuntu Jammy |
+| Wizer (C#) | 11.0.3 |
 | Grain | 0.7.2 |
-| SwiftWasm | 6.0.2, complete Ubuntu 22.04 toolchain |
-| Wizer | 11.0.3 |
+| SwiftWasm | 6.0.2, complete Ubuntu 22.04 toolchain and WASI SDK |
 | Python SDK / componentizer | Existing requirements: 3.4.1 / 0.17.2 |
-| C# / F# WASI dependencies | Existing project package pins |
-| Ruby / PHP Wasm runtimes | Existing manifest and download-script pins |
+| Ruby / PHP Wasm runtimes | Existing script and manifest pins |
 
-Compiler versions are Docker build arguments; changing one does not change the
-application's SDK pins. Ruby's runtime and NuGet packages are prepared during
-image build. PHP is downloaded and integrity-checked by Spin when its test starts.
-Initial test runs may also download Rust crates and experimental WASI support
-artifacts, so this is not an offline image.
+Compiler versions remain build arguments in each Dockerfile. Configure overrides
+in the service's Compose `build.args`; shared Node/Spin overrides belong to `base`.
+Ruby downloads and integrity-checks its runtime on its first test; PHP downloads
+its manifest-pinned runtime through Spin. Rust and experimental WASI builds may
+also download dependencies, so this is not an offline setup.
 
-## Limits
+## Validation Scope
 
-- Apple Silicon requires amd64 emulation because of the experimental toolchain
-  binary choices. Native Linux amd64 is recommended for speed and reliability.
-- The image is large, primarily because it includes Swift, .NET, LLVM, and Rust.
-  Allow several GB of disk and sufficient Docker Desktop memory for compiler
-  processes. Emulated builds can take considerably longer than native builds.
-- The image caps the .NET GC heap at 512 MiB and restores NuGet packages
-  sequentially. This reduces memory pressure but is not a substitute for enough
-  Docker VM RAM. The local 2 GB Colima VM hit an allocation failure during the
-  initial uncapped restore; allocate at least 8 GB for the full compiler matrix.
-- Container builds allow 15 minutes per language and 5 minutes per server startup.
-  Override `LANGUAGE_BUILD_TIMEOUT_MS` or `LANGUAGE_STARTUP_TIMEOUT_MS` with
-  `docker run -e` if needed. Local non-container defaults remain 180 and 90 seconds.
-- The image supplies prerequisites; it does not turn experimental SDKs into
-  supported releases or guarantee every application component passes.
-- These are local Spin tests, not Fermyon Cloud deployment certification. No
-  Cloud credentials, database passwords, or AI provider access are needed.
-
-## Validation Status
-
-The initial `docker build --check` passed with no warnings. A full build then
-successfully installed the system packages, Node, Rust, Go, TinyGo, Zig, Spin,
-Grain, SwiftWasm, Wizer, npm dependencies, Python SDK, and Go module dependencies.
-It stopped at .NET restore with `cannot allocate memory` in the local 2 GB
-ARM64 Colima VM under amd64 emulation.
-
-A .NET startup probe with the new 512 MiB GC cap passed, but that does not prove
-restore or the complete build will succeed. Validation of the revised image was
-subsequently blocked by Docker Hub authentication routing (`no route to host`).
-The complete image and container test matrix therefore remain unverified.
-The local runner syntax check and all five existing project tests passed.
-
-Retry the build on a reachable registry connection and a VM with adequate RAM,
-then run the matrix using the commands above. There is no container-generated
-all-language pass report yet.
+Configuration and unit checks do not prove every compiler image builds or every
+language passes its runtime test. The complete matrix requires adequate VM RAM,
+reachable registries, and successful per-language reports. These are local Spin
+tests, not Fermyon Cloud deployment certification or external service checks.

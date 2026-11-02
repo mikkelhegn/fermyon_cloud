@@ -1,0 +1,172 @@
+name: cloud-language-lab
+
+x-build: &language-build
+  context: .
+  additional_contexts:
+    lab-base: service:base
+
+x-environment: &language-environment
+  LANGUAGE_BUILD_TIMEOUT_MS: ${LANGUAGE_BUILD_TIMEOUT_MS:-900000}
+  LANGUAGE_STARTUP_TIMEOUT_MS: ${LANGUAGE_STARTUP_TIMEOUT_MS:-300000}
+
+x-language: &language
+  platform: linux/amd64
+  init: true
+  working_dir: /workspace
+  depends_on:
+    base:
+      condition: service_completed_successfully
+  volumes:
+    - .:/workspace
+    - node-dependencies:/workspace/node_modules:ro
+    - /workspace/.spin
+
+services:
+  base:
+    platform: linux/amd64
+    init: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TEST_UID: ${TEST_UID:-1000}
+        TEST_GID: ${TEST_GID:-1000}
+    entrypoint: ["node"]
+    command: ["--version"]
+    volumes:
+      - node-dependencies:/workspace/node_modules
+
+  rust:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/rust.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/rust
+
+  javascript:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/javascript.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/javascript
+
+  typescript:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/typescript.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/typescript
+
+  python:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/python.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/python
+    volumes:
+      - .:/workspace
+      - node-dependencies:/workspace/node_modules:ro
+      - /workspace/.spin
+      - python-environment:/workspace/.venv
+
+  go:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/go.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/go
+
+  c:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/c.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/c
+
+  cpp:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/cpp.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/cpp
+
+  csharp:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/csharp.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/csharp
+
+  fsharp:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/fsharp.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/fsharp
+
+  grain:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/grain.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/grain
+
+  ruby:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/ruby.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/ruby
+
+  swift:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/swift.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/swift
+
+  zig:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/zig.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/zig
+
+  php:
+    <<: *language
+    build:
+      <<: *language-build
+      dockerfile: docker/php.Dockerfile
+    environment:
+      <<: *language-environment
+      LANGUAGE_REPORT_DIRECTORY: reports/php
+
+volumes:
+  node-dependencies:
+  python-environment:

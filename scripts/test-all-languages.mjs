@@ -9,7 +9,7 @@ import { parse, stringify } from "smol-toml";
 import { selectComponents } from "./select-components.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const reportDirectory = resolve(root, "reports");
+const reportDirectory = resolve(root, process.env.LANGUAGE_REPORT_DIRECTORY ?? "reports");
 const logDirectory = resolve(reportDirectory, "local-test-logs");
 const manifest = parse(await readFile(resolve(root, "spin.toml"), "utf8"));
 const selection = process.argv.find((argument) => argument.startsWith("--languages="));
@@ -248,5 +248,5 @@ This run tests language compilation and HTTP handling, not Cloud deployment, AI 
 
 For a single-language diagnostic: \`node scripts/test-all-languages.mjs --languages=rust\`. Each run replaces these summary files with the selected run's results.
 `);
-console.log(`Report: reports/local-test-results.md (${report.totals.PASS} pass, ${report.totals.FAIL} fail, ${report.totals.BLOCKED} blocked)`);
+console.log(`Report: ${resolve(reportDirectory, "local-test-results.md")} (${report.totals.PASS} pass, ${report.totals.FAIL} fail, ${report.totals.BLOCKED} blocked)`);
 process.exitCode = results.some((row) => row.result !== "PASS") || suite.code !== 0 ? 1 : 0;
