@@ -9,6 +9,7 @@ ARG ZIG_VERSION=0.13.0
 ARG SPIN_VERSION=4.2.5
 ARG GRAIN_VERSION=0.7.2
 ARG SWIFTWASM_VERSION=6.0.2
+ARG SWIFTWASM_SDK_SHA256=6ffedb055cb9956395d9f435d03d53ebe9f6a8d45106b979d1b7f53358e1dcb4
 ARG WIZER_VERSION=11.0.3
 ARG TEST_UID=1000
 ARG TEST_GID=1000
@@ -21,6 +22,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANGUAGE_STARTUP_TIMEOUT_MS=300000 \
     RUSTUP_HOME=/opt/rustup \
     TINYGOROOT=/opt/tinygo \
+    SWIFT_WASI_SDK_ROOT=/opt/swift-wasi/swift-wasm-${SWIFTWASM_VERSION}-RELEASE-wasm32-unknown-wasi.artifactbundle/${SWIFTWASM_VERSION}-RELEASE-wasm32-unknown-wasi/wasm32-unknown-wasi \
     PATH=/opt/swift/usr/bin:/opt/tinygo/bin:/opt/zig:/opt/go/bin:/opt/cargo/bin:/opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 RUN test "$(dpkg --print-architecture)" = amd64 || { echo "This image requires amd64; build with --platform linux/amd64 or use an x86_64 VM." >&2; exit 1; }
@@ -58,6 +60,13 @@ RUN mkdir -p /opt/swift \
     && tar -xzf /tmp/swift.tar.gz --strip-components=1 -C /opt/swift \
     && rm /tmp/swift.tar.gz \
     && test -x /opt/swift/usr/bin/swift-autolink-extract
+RUN mkdir -p /opt/swift-wasi \
+    && curl -fsSL --retry 3 "https://github.com/swiftwasm/swift/releases/download/swift-wasm-${SWIFTWASM_VERSION}-RELEASE/swift-wasm-${SWIFTWASM_VERSION}-RELEASE-wasm32-unknown-wasi.artifactbundle.zip" -o /tmp/swift-wasi.zip \
+    && printf '%s  %s\n' "$SWIFTWASM_SDK_SHA256" /tmp/swift-wasi.zip | sha256sum -c - \
+    && unzip -q /tmp/swift-wasi.zip -d /opt/swift-wasi \
+    && rm /tmp/swift-wasi.zip \
+    && test -f "$SWIFT_WASI_SDK_ROOT/swift.xctoolchain/usr/lib/swift_static/wasi/static-executable-args.lnk" \
+    && test -d "$SWIFT_WASI_SDK_ROOT/WASI.sdk"
 RUN mkdir -p /tmp/wizer \
     && curl -fsSL --retry 3 "https://github.com/bytecodealliance/wizer/releases/download/v${WIZER_VERSION}/wizer-v${WIZER_VERSION}-x86_64-linux.tar.xz" -o /tmp/wizer.tar.xz \
     && tar -xJf /tmp/wizer.tar.xz --strip-components=1 -C /tmp/wizer \
@@ -77,7 +86,7 @@ RUN ln -s /opt/venv .venv \
 RUN dotnet restore components/csharp/Component.csproj --disable-parallel \
     && dotnet restore components/fsharp/Component.fsproj --disable-parallel
 RUN sh scripts/build-ruby.sh \
-    && swiftc -target wasm32-unknown-wasi -Osize components/swift/main.swift -o /tmp/swift-probe.wasm \
+    && sh scripts/build-swift.sh /tmp/swift-probe.wasm \
     && rm /tmp/swift-probe.wasm
 RUN spin --version && cargo --version && go version && tinygo version \
     && zig version && grain --version && wizer --version && dotnet --version

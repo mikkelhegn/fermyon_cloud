@@ -164,7 +164,7 @@ command = "sh scripts/build-ruby.sh"
 source = "components/swift/app.wasm"
 allowed_outbound_hosts = []
 [component.swift.build]
-command = "swiftc -target wasm32-unknown-wasi -Osize components/swift/main.swift -o components/swift/app.wasm"
+command = "sh scripts/build-swift.sh"
 
 [component.zig]
 source = "components/zig/app.wasm"
