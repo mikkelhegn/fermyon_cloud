@@ -7,6 +7,14 @@ import { parse } from "smol-toml";
 
 const escape = (value) => String(value).replaceAll("|", "\\|").replaceAll(/\r?\n/g, " ");
 
+export const testExclusions = {
+  fsharp: "The .NET WASI module runs directly under Wasmtime 50.0.1, but Spin 4.2.5 traps in its WAGI Preview 1 adapter during allocate_stack. Excluded from automated Spin tests until a compatible component runtime is available.",
+};
+
+export function getTestLanguages(manifest) {
+  return Object.keys(manifest.component).filter((language) => !testExclusions[language]);
+}
+
 export function renderReport(entries) {
   const results = entries.flatMap(({ report }) => report.results);
   const totals = Object.fromEntries(["PASS", "FAIL", "BLOCKED"].map((status) => [status, results.filter((row) => row.result === status).length]));
@@ -37,6 +45,10 @@ ${rows.join("\n")}
 
 ${failures.length ? failures.map((row) => `- ${escape(row.language)}: ${escape(row.detail)}${row.source === "FAIL" ? "; native syntax check failed" : ""}. See the linked logs above.`).join("\n") : "No language failures or blocked prerequisites were reported."}
 ${entries.some(({ report }) => report.unitTests !== "PASS") ? "\n- Shared tests failed; inspect the linked unit-test logs below.\n" : ""}
+## Excluded From Automated Spin Tests
+
+${Object.entries(testExclusions).map(([language, reason]) => `- ${language}: ${escape(reason)}`).join("\n")}
+
 ## Environments
 
 | Language | Platform | Spin | Test completed | Shared tests |
@@ -58,7 +70,8 @@ Results cover per-language builds and Spin HTTP checks, not Fermyon Cloud deploy
 export async function prepareReports(directory, languages) {
   await mkdir(directory, { recursive: true });
   await Promise.all(["local-test-results.md", "local-test-results.json"].map((filename) => rm(resolve(directory, filename), { force: true })));
-  await Promise.all(languages.flatMap((language) => ["local-test-results.json", "local-test-results.md"].map((filename) =>
+  const reportLanguages = [...new Set([...languages, ...Object.keys(testExclusions)])];
+  await Promise.all(reportLanguages.flatMap((language) => ["local-test-results.json", "local-test-results.md"].map((filename) =>
     rm(resolve(directory, language, filename), { force: true }))));
 }
 
@@ -87,7 +100,7 @@ export async function combineReports(directory, languages) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = fileURLToPath(new URL("../", import.meta.url));
   const manifest = parse(await readFile(resolve(root, "spin.toml"), "utf8"));
-  const languages = Object.keys(manifest.component);
+  const languages = getTestLanguages(manifest);
   const directory = resolve(root, "reports");
   if (process.argv.includes("--prepare")) {
     await prepareReports(directory, languages);

@@ -7,27 +7,31 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse, stringify } from "smol-toml";
 import { selectComponents } from "./select-components.mjs";
-import { combineReports, renderReport } from "./language-reports.mjs";
+import { combineReports, getTestLanguages, renderReport, testExclusions } from "./language-reports.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const reportDirectory = resolve(root, process.env.LANGUAGE_REPORT_DIRECTORY ?? "reports");
 const logDirectory = resolve(reportDirectory, "local-test-logs");
 const manifest = parse(await readFile(resolve(root, "spin.toml"), "utf8"));
 const selection = process.argv.find((argument) => argument.startsWith("--languages="));
-const languages = selection ? selection.split("=", 2)[1].split(",") : Object.keys(manifest.component);
+const languages = selection ? selection.split("=", 2)[1].split(",") : getTestLanguages(manifest);
+for (const language of languages) {
+  assert.ok(manifest.component[language], `Unknown component: ${language}`);
+  assert.ok(!testExclusions[language], `${language} is excluded from the automated test matrix: ${testExclusions[language]}`);
+}
 const buildTimeout = Number(process.env.LANGUAGE_BUILD_TIMEOUT_MS ?? 180000);
 const startupTimeout = Number(process.env.LANGUAGE_STARTUP_TIMEOUT_MS ?? 90000);
 assert.ok(Number.isSafeInteger(buildTimeout) && buildTimeout > 0, "Invalid LANGUAGE_BUILD_TIMEOUT_MS");
 assert.ok(Number.isSafeInteger(startupTimeout) && startupTimeout > 0, "Invalid LANGUAGE_STARTUP_TIMEOUT_MS");
 const expectedLanguages = {
   rust: "Rust", javascript: "JavaScript", typescript: "TypeScript", python: "Python",
-  go: "Go", c: "C", cpp: "C++", csharp: "C#", fsharp: "F#", grain: "Grain",
+  go: "Go", c: "C", cpp: "C++", csharp: "C#", grain: "Grain",
   ruby: "Ruby", swift: "Swift", zig: "Zig", php: "PHP",
 };
 const prerequisites = {
   rust: ["cargo"], javascript: ["npm"], typescript: ["npm"],
   python: [resolve(root, ".venv/bin/componentize-py")], go: ["go", "tinygo"],
-  c: ["zig"], cpp: ["zig"], csharp: ["dotnet"], fsharp: ["dotnet"],
+  c: ["zig"], cpp: ["zig"], csharp: ["dotnet"],
   grain: ["grain"], ruby: ["curl", "tar", "shasum"], swift: ["swiftc"], zig: ["zig"], php: [],
 };
 const sourceCommands = {
@@ -142,7 +146,6 @@ await writeFile(resolve(logDirectory, "unit-tests.log"), suite.output);
 const results = [];
 
 for (const language of languages) {
-  assert.ok(manifest.component[language], `Unknown component: ${language}`);
   const row = { component: language, language: expectedLanguages[language], source: "NOT RUN", build: "NOT RUN", runtime: "NOT RUN", result: "BLOCKED", detail: "" };
   if (sourceCommands[language]) {
     const [command, args] = sourceCommands[language];
@@ -200,7 +203,7 @@ await writeFile(temporary, JSON.stringify(report, null, 2) + "\n");
 await rename(temporary, jsonFilename);
 if (process.env.LANGUAGE_COMBINE_REPORTS === "1") {
   const directory = resolve(root, "reports");
-  if (await combineReports(directory, Object.keys(manifest.component))) {
+  if (await combineReports(directory, getTestLanguages(manifest))) {
     console.log(`Combined report: ${resolve(directory, "local-test-results.md")}`);
   }
 } else {

@@ -40,9 +40,11 @@ For POSIX shells, use `export SPIN_VARIABLE_API_TOKEN=$(openssl rand -hex 32)`.
 Do not use the test token in production. Without a token of at least 24
 characters, protected operations fail closed with HTTP 503.
 
-`GET /` and `GET /healthz` report application health. Each `GET /api/<language>`
-returns JSON identifying its component. Rust's response also invokes a separate
-WIT dependency, demonstrating **composition**, not HTTP service chaining.
+`GET /` and `GET /healthz` report application health. Verified `GET /api/<language>`
+routes return JSON identifying their component. F# remains a manifest route but
+is currently excluded from Spin runtime tests because its WAGI adapter traps.
+Rust's response also invokes a separate WIT dependency, demonstrating
+**composition**, not HTTP service chaining.
 
 ## Language Components
 
@@ -54,9 +56,9 @@ WIT dependency, demonstrating **composition**, not HTTP service chaining.
 | `python` | Python | `spin-sdk 3.4.1`, componentize-py `0.17.2` | Official `http-py-p2` compatibility pins; shared KV read |
 | `go` | Go / TinyGo | `spin-go-sdk/v2 2.2.1` | Latest v2 tag; TinyGo WASI P1 build |
 | `c` | C | Zig `0.13.0`, libc | WAGI; no official language-specific Spin SDK |
-| `cpp` | C++ | Zig `0.13.0`, libc++ | WAGI; exceptions disabled |
+| `cpp` | C++ | Zig `0.13.0`, libc | WAGI; C stdio only, no libc++ linkage |
 | `csharp` | C# | Fermyon.Spin.Sdk `0.1.0-alpha2`, Wasi.Sdk `0.1.1`, .NET 8 | Experimental official template pins |
-| `fsharp` | F# | Wasi.Sdk `0.1.1`, .NET 8 | Experimental .NET WASI/WAGI; no F# Spin SDK |
+| `fsharp` | F# | Wasi.Sdk `0.1.1`, WASI SDK `19.0`, .NET 8 | Runs directly under Wasmtime 50.0.1; Spin 4.2.5 WAGI adapter traps during `allocate_stack`; excluded from automated Spin tests |
 | `grain` | Grain | Grain compiler with `--use-start-section` | WAGI; no Spin SDK |
 | `ruby` | Ruby 4.0 | ruby.wasm `2.10.1`, WASI P1 minimal archive | WAGI; checksum-verified runtime download |
 | `swift` | Swift | Modern SwiftWasm toolchain | WAGI; older SwiftWasm 5.10 is incompatible with Spin 3+ |
@@ -67,8 +69,13 @@ This is not a claim that Fermyon certifies all WASI languages or that all
 languages have equal host-API access. WAGI handlers demonstrate HTTP execution;
 they do not pretend to implement Spin SDK APIs. Other languages capable of
 compiling to WASI may work, but are outside this explicit documentation-based
-inventory. C# is included using its experimental SDK; F# uses the general WASI
-path described in the other-language guide.
+inventory. C# is included using its experimental SDK. F# uses the general WASI
+path described in the other-language guide. Its compiled module prints the
+expected response under Wasmtime 50.0.1, but Spin 4.2.5 returns HTTP 500 while
+initializing the WAGI Preview 1 adapter (`cabi_realloc` / `allocate_stack`),
+before the F# handler writes output. F# remains in the app manifest but is
+excluded from the automated Spin test matrix pending a compatible component
+runtime; the WAGI deprecation warning itself is not the cause of the trap.
 
 To include Python, install Python 3.10+ and create the project venv:
 
@@ -81,13 +88,16 @@ spin build -f spin.local.toml
 
 For Go, install Go and TinyGo, then run `go mod tidy` from the Go component
 directory. For C, C++, and Zig, install **Zig 0.13.0**; newer Zig releases change
-the standard I/O API. For .NET, install the .NET 8 SDK and the prerequisites in
-the Spin .NET SDK repository, including Wizer for C#. For Grain and Swift,
+the standard I/O API. For C#, install the .NET 8 SDK and the prerequisites in
+the Spin .NET SDK repository. C# Wizer preinitialization is disabled because
+the generated module lacks the required `wizer-initialize` export. For Grain and Swift,
 install their WASI-capable compilers. The Ruby build downloads a pinned archive;
 PHP is fetched by Spin with a manifest SHA-256 integrity check.
 
-`spin build` builds the complete 14-language manifest. Only run it when all
-toolchains are installed. `spin build -c rust` builds one component but does not
+`spin build` builds the complete 14-component app manifest. Only run it when all
+toolchains are installed. The Docker Compose test matrix covers 13 languages;
+F# is excluded because its WASI module currently traps in Spin's WAGI adapter.
+`spin build -c rust` builds one component but does not
 remove the other components from the runtime manifest. Use
 `scripts/select-components.mjs` for a runnable subset.
 
@@ -242,16 +252,14 @@ spin build -f spin.local.toml
 npm run smoke
 ```
 
-During creation, Rust, the composed dependency, JavaScript, and TypeScript were
-compiled locally. All five manifest/handler tests passed. HTTP smoke checks
-passed against the running Wasm application for language routes, composition,
 authentication, KV, SQLite, input limits, and both draft WASI interfaces. The
-verified local profile is running at `http://127.0.0.1:3001`.
-Python syntax was checked by
-Pylance and its installed SDK inspected, but the local componentizer was killed
-with signal 9 and produced no Wasm. Other language builds and Cloud deployment
-have not been certified. C and C++ source syntax checks passed with local Clang.
-AI and external databases require your own provider access and remain untested.
+The F# component built successfully with WASI SDK 19.0 and ran directly under
+Wasmtime 50.0.1, printing its expected CGI response. Under Spin 4.2.5, its WAGI
+Preview 1 adapter traps during `allocate_stack` before the handler writes output;
+the route is therefore excluded from automated Spin tests, not counted as a
+pass. The Docker matrix contains 13 language services. The complete matrix has
+not been rerun since the latest C++/C# configuration changes and F# exclusion.
+Cloud deployment, AI providers, and external databases remain unverified.
 
 ## Sources
 

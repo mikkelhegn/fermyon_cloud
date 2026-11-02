@@ -1,5 +1,0 @@
-Building component go with `cd components/go && go mod tidy && tinygo build -target=wasi -buildmode=c-shared -gc=leaking -no-debug -o app.wasm .`
-Killed
-Error: Build command for component go failed with status Exited(137)
-
-Exit code: 1; signal: null; timeout: false

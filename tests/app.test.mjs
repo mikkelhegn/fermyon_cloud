@@ -5,7 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { parse } from "smol-toml";
 import { selectComponents } from "../scripts/select-components.mjs";
-import { combineReports, prepareReports } from "../scripts/language-reports.mjs";
+import { combineReports, getTestLanguages, prepareReports, testExclusions } from "../scripts/language-reports.mjs";
 
 const manifest = parse(await readFile(new URL("../spin.toml", import.meta.url), "utf8"));
 const csharpProject = await readFile(new URL("../components/csharp/Component.csproj", import.meta.url), "utf8");
@@ -51,10 +51,11 @@ test("C# disables the Wizer pass that fails on its generated Wasm module", () =>
   assert.match(csharpProject, /<UseWizer>false<\/UseWizer>/);
 });
 
-test("F# build overrides the pinned WASI SDK with memory-safe version 19", () => {
-  const command = manifest.component.fsharp.build.command;
-  assert.ok(command.includes("-p:WasiSdkVersion=19.0"));
-  assert.ok(command.includes("-p:WasiSdkUrl=https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-19/wasi-sdk-19.0-linux.tar.gz"));
+test("F# remains an app component but is excluded from automated Spin tests", () => {
+  assert.ok(manifest.component.fsharp);
+  assert.equal(getTestLanguages(manifest).length, languages.length - 1);
+  assert.ok(!getTestLanguages(manifest).includes("fsharp"));
+  assert.match(testExclusions.fsharp, /Spin 4\.2\.5 traps in its WAGI Preview 1 adapter/);
 });
 
 test("secrets and outbound capabilities are limited to their consumers", () => {
@@ -96,18 +97,23 @@ test("combined report waits for every language and links failures to their logs"
   await mkdir(join(directory, "go"));
   await writeFile(join(directory, "go/local-test-results.json"), JSON.stringify(makeReport("go", "FAIL")));
   await writeFile(join(directory, "python/local-test-results.md"), "old per-language report");
+  await mkdir(join(directory, "fsharp"));
+  await writeFile(join(directory, "fsharp/local-test-results.json"), "stale result");
+  await writeFile(join(directory, "fsharp/local-test-results.md"), "stale report");
   assert.equal(await combineReports(directory, selected), true);
   await assert.rejects(readFile(join(directory, "python/local-test-results.md")), { code: "ENOENT" });
   const markdown = await readFile(join(directory, "local-test-results.md"), "utf8");
   assert.match(markdown, /2 languages checked: \*\*1 passed\*\*, \*\*1 failed\*\*, \*\*0 blocked\*\*/);
   assert.ok(markdown.includes("go/local-test-logs/go-build.log"));
   assert.ok(markdown.includes("Shared manifest and JavaScript handler tests: **FAIL**"));
+  assert.ok(markdown.includes("## Excluded From Automated Spin Tests"));
+  assert.ok(markdown.includes("fsharp: The .NET WASI module runs directly under Wasmtime 50.0.1"));
   assert.ok(markdown.includes("test \\| detail next"));
   assert.ok(!markdown.includes("signal-9"));
   assert.ok(!markdown.includes("Not installed"));
   await writeFile(join(directory, "python/local-test-results.md"), "old report");
   await prepareReports(directory, selected);
-  for (const filename of ["local-test-results.md", "python/local-test-results.md", "python/local-test-results.json", "go/local-test-results.json"]) {
+  for (const filename of ["local-test-results.md", "python/local-test-results.md", "python/local-test-results.json", "go/local-test-results.json", "fsharp/local-test-results.md", "fsharp/local-test-results.json"]) {
     await assert.rejects(readFile(join(directory, filename)), { code: "ENOENT" });
   }
 });

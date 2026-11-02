@@ -1,8 +1,11 @@
 # Containerized Language Tests
 
-Each of the 14 languages has a Dockerfile under `docker/` and a matching service
-in `compose.yaml`. The root `Dockerfile` supplies only shared Ubuntu 22.04,
-Node.js, Spin, and npm dependencies. Language images install their own toolchains.
+The 14-component Spin app has 13 language test Dockerfiles under `docker/` and
+matching services in `compose.yaml`. F# remains in `spin.toml` but is excluded
+from the automated Spin matrix. Its module runs directly under Wasmtime 50.0.1,
+but Spin 4.2.5 traps in the WAGI Preview 1 adapter during `allocate_stack`.
+The root `Dockerfile` supplies shared Ubuntu 22.04, Node.js, Spin, and npm
+dependencies. Language images install their own toolchains.
 These are one-shot build/test services, not persistent application servers.
 
 ## Build And Run
@@ -18,12 +21,12 @@ docker compose ps -a
 
 Compose builds `base` before dependent language images. The base service
 initializes the Node dependency volume, clears previous generated summaries,
-and exits successfully; each language
-then runs the shared unit tests, its own build, and an isolated Spin HTTP test.
+and exits successfully; each tested language then runs the shared unit tests,
+its own build, and an isolated Spin HTTP test.
 Services run concurrently and stop after testing. No ports or credentials are
 needed.
 
-After all 14 language JSON results are written, the last finishing service
+After all 13 tested language JSON results are written, the last finishing service
 creates one combined Markdown report at `reports/local-test-results.md`, even
 when tests fail. Language containers do not create individual Markdown reports.
 If a container crashes before writing its JSON, the combined report is not
@@ -66,8 +69,11 @@ docker compose run --rm --entrypoint bash python
   `local-test-results.json` and `local-test-logs/`. Only the combined Markdown
   report is written at `reports/local-test-results.md`, with links into those
   log directories and follow-up actions based on actual failures.
+- Spin component stdout/stderr is captured under
+  `reports/<language>/local-test-logs/<language>-component-logs/` and appended to
+  the corresponding runtime log, including when a request fails.
 - The base service removes old summary JSON and Markdown files at the start of
-  each invocation, including legacy per-language Markdown reports. Existing
+  each invocation, including legacy per-language Markdown reports and stale F# results. Existing
   logs are retained. Run the entire matrix to generate the combined report;
   selected-language invocations produce only their JSON results and logs.
 - To regenerate the combined Markdown from an existing complete set of results,
@@ -124,8 +130,7 @@ local `.env` file; Compose forwards them to every language service.
 | Rust | 1.90.0, WASI P1 and P2 targets |
 | Go / TinyGo | 1.23.6 / 0.35.0 |
 | Zig (C, C++, Zig) | 0.13.0 |
-| .NET SDK (C#, F#) | 8.0.415, Ubuntu Jammy |
-| Wizer (C#) | 11.0.3 |
+| .NET SDK (C#) | 8.0.415, Ubuntu Jammy |
 | Grain | 0.7.2 |
 | SwiftWasm | 6.0.2, complete Ubuntu 22.04 toolchain and WASI SDK |
 | Python SDK / componentizer | Existing requirements: 3.4.1 / 0.17.2 |
@@ -140,6 +145,9 @@ also download dependencies, so this is not an offline setup.
 ## Validation Scope
 
 Configuration and unit checks do not prove every compiler image builds or every
-language passes its runtime test. The complete matrix requires adequate VM RAM,
-reachable registries, and successful per-language reports. These are local Spin
-tests, not Fermyon Cloud deployment certification or external service checks.
+tested language passes its runtime test. The 13-language matrix requires adequate
+VM RAM, reachable registries, and successful per-language reports. F#'s .NET WASI
+binary runs directly under Wasmtime 50.0.1, but Spin 4.2.5 traps in the WAGI
+Preview 1 adapter during `allocate_stack`; it is excluded pending a compatible
+Spin component runtime. These are local Spin tests, not Fermyon Cloud deployment
+certification or external service checks.

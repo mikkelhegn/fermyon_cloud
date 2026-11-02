@@ -115,15 +115,6 @@ services:
       <<: *language-environment
       LANGUAGE_REPORT_DIRECTORY: reports/csharp
 
-  fsharp:
-    <<: *language
-    build:
-      <<: *language-build
-      dockerfile: docker/fsharp.Dockerfile
-    environment:
-      <<: *language-environment
-      LANGUAGE_REPORT_DIRECTORY: reports/fsharp
-
   grain:
     <<: *language
     build:
