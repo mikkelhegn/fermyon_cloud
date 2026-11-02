@@ -4,7 +4,7 @@
     <AssemblyName>CloudCSharp</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <UseWizer>true</UseWizer>
+    <UseWizer>false</UseWizer>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Wasi.Sdk" Version="0.1.1" />

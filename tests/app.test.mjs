@@ -8,6 +8,7 @@ import { selectComponents } from "../scripts/select-components.mjs";
 import { combineReports, prepareReports } from "../scripts/language-reports.mjs";
 
 const manifest = parse(await readFile(new URL("../spin.toml", import.meta.url), "utf8"));
+const csharpProject = await readFile(new URL("../components/csharp/Component.csproj", import.meta.url), "utf8");
 const languages = ["rust", "javascript", "typescript", "python", "go", "c", "cpp", "csharp", "fsharp", "grain", "ruby", "swift", "zig", "php"];
 
 test("each documented language has a distinct component and HTTP route", () => {
@@ -44,6 +45,10 @@ test("Go builds a WASI reactor for Spin's exported HTTP handler", () => {
 
 test("Go limits TinyGo compilation parallelism to reduce peak memory", () => {
   assert.ok(manifest.component.go.build.command.split(/\s+/).includes("-p=1"));
+});
+
+test("C# disables the Wizer pass that fails on its generated Wasm module", () => {
+  assert.match(csharpProject, /<UseWizer>false<\/UseWizer>/);
 });
 
 test("secrets and outbound capabilities are limited to their consumers", () => {
