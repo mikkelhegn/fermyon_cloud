@@ -1,0 +1,8 @@
+Building component ruby with `sh scripts/build-ruby.sh`
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0 23.3M    0 15491    0     0  29154      0  0:13:59 --:--:--  0:13:59 29154100 23.3M  100 23.3M    0     0  26.3M      0 --:--:-- --:--:-- --:--:-- 66.0M
+Finished building all Spin components
+
+Exit code: 0; signal: null; timeout: false

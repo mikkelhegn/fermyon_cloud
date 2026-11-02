@@ -1,0 +1,5 @@
+Building component cpp with `zig build-exe components/cpp/main.cpp -target wasm32-wasi -O ReleaseSmall -lc -lc++ -fno-exceptions -femit-bin=components/cpp/app.wasm`
+error: unrecognized parameter: '-fno-exceptions'
+Error: Build command for component cpp failed with status Exited(1)
+
+Exit code: 1; signal: null; timeout: false

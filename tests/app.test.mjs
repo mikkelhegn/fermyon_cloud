@@ -21,6 +21,16 @@ test("Cloud-unsupported triggers and service chaining are excluded", () => {
   }
 });
 
+test("C++ build avoids the flag rejected by the pinned Zig compiler", () => {
+  const command = manifest.component.cpp.build.command;
+  assert.match(command, /^zig build-exe /);
+  assert.ok(!command.split(/\s+/).includes("-fno-exceptions"));
+});
+
+test("Go resolves module checksums in the workspace before compiling", () => {
+  assert.match(manifest.component.go.build.command, /^cd components\/go && go mod tidy && tinygo build /);
+});
+
 test("secrets and outbound capabilities are limited to their consumers", () => {
   for (const variable of ["api_token", "redis_url", "mysql_url", "postgres_url"]) {
     assert.equal(manifest.variables[variable].secret, true);

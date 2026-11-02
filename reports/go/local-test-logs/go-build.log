@@ -1,0 +1,6 @@
+Building component go with `cd components/go && tinygo build -target=wasi -gc=leaking -no-debug -o app.wasm .`
+main.go:8:2: missing go.sum entry for module providing package github.com/spinframework/spin-go-sdk/v2/http (imported by example.com/cloud-language-lab/go); to add:
+	go get example.com/cloud-language-lab/go
+Error: Build command for component go failed with status Exited(1)
+
+Exit code: 1; signal: null; timeout: false

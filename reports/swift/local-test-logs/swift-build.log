@@ -1,0 +1,5 @@
+Building component swift with `sh scripts/build-swift.sh`
+warning: Could not read SDKSettings.json for SDK at: /opt/swift-wasi/swift-wasm-6.0.2-RELEASE-wasm32-unknown-wasi.artifactbundle/6.0.2-RELEASE-wasm32-unknown-wasi/wasm32-unknown-wasi/WASI.sdk
+Finished building all Spin components
+
+Exit code: 0; signal: null; timeout: false
