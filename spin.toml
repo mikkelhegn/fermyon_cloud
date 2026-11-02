@@ -83,7 +83,7 @@ watch = ["components/python/*.py", "components/python/requirements.txt"]
 source = "components/go/app.wasm"
 allowed_outbound_hosts = []
 [component.go.build]
-command = "cd components/go && go mod tidy && tinygo build -target=wasi -buildmode=c-shared -gc=leaking -no-debug -o app.wasm ."
+command = "cd components/go && go mod tidy && tinygo build -target=wasi -buildmode=c-shared -p=1 -gc=leaking -no-debug -o app.wasm ."
 watch = ["components/go/*.go", "components/go/go.mod"]
 
 [[trigger.http]]

@@ -40,6 +40,10 @@ test("Go builds a WASI reactor for Spin's exported HTTP handler", () => {
   assert.ok(command.split(/\s+/).includes("-buildmode=c-shared"));
 });
 
+test("Go limits TinyGo compilation parallelism to reduce peak memory", () => {
+  assert.ok(manifest.component.go.build.command.split(/\s+/).includes("-p=1"));
+});
+
 test("secrets and outbound capabilities are limited to their consumers", () => {
   for (const variable of ["api_token", "redis_url", "mysql_url", "postgres_url"]) {
     assert.equal(manifest.variables[variable].secret, true);
