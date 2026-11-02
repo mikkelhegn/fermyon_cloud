@@ -132,7 +132,7 @@ command = "zig build-exe components/c/main.c -target wasm32-wasi -O ReleaseSmall
 source = "components/cpp/app.wasm"
 allowed_outbound_hosts = []
 [component.cpp.build]
-command = "zig build-exe components/cpp/main.cpp -target wasm32-wasi -O ReleaseSmall -lc -lc++ -femit-bin=components/cpp/app.wasm"
+command = "zig build-exe components/cpp/main.cpp -target wasm32-wasi -O ReleaseSmall -lc -femit-bin=components/cpp/app.wasm"
 
 [component.csharp]
 source = "components/csharp/bin/Release/net8.0/CloudCSharp.wasm"

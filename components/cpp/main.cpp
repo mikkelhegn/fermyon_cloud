@@ -1,6 +1,6 @@
-#include <cstdio>
+#include <stdio.h>
 
 int main() {
-    std::puts("Content-Type: application/json\r\n\r\n{\"language\":\"C++\",\"runtime\":\"WAGI\"}");
+    puts("Content-Type: application/json\r\n\r\n{\"language\":\"C++\",\"runtime\":\"WAGI\"}");
     return 0;
 }

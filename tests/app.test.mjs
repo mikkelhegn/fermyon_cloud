@@ -24,10 +24,12 @@ test("Cloud-unsupported triggers and service chaining are excluded", () => {
   }
 });
 
-test("C++ build avoids the flag rejected by the pinned Zig compiler", () => {
+test("C++ build avoids unsupported flags and unnecessary libc++ linkage", () => {
   const command = manifest.component.cpp.build.command;
   assert.match(command, /^zig build-exe /);
-  assert.ok(!command.split(/\s+/).includes("-fno-exceptions"));
+  const flags = command.split(/\s+/);
+  assert.ok(!flags.includes("-fno-exceptions"));
+  assert.ok(!flags.includes("-lc++"));
 });
 
 test("Go resolves module checksums in the workspace before compiling", () => {
