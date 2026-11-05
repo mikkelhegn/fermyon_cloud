@@ -1,6 +1,17 @@
 name: Deploy To Fermyon Cloud
 on:
   workflow_dispatch:
+    inputs:
+      components:
+        description: Comma-separated non-F# components to deploy and compare
+        required: true
+        default: rust,javascript,typescript
+        type: string
+      provider_checks:
+        description: Also exercise outbound services and AI; configure their Cloud variables and secrets first
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 concurrency:
@@ -25,14 +36,147 @@ jobs:
           plugins: cloud
       - run: npm ci
       - run: npm test
-      - run: node scripts/select-components.mjs rust,javascript,typescript
-      - run: spin build -f spin.local.toml
+      - name: Validate requested profile
+        id: profile
+        env:
+          COMPONENTS_INPUT: ${{ inputs.components }}
+        run: |
+          components="$(printf '%s' "$COMPONENTS_INPUT" | tr -d '[:space:]')"
+          node scripts/select-components.mjs "$components" --tested
+          printf 'components=%s\n' "$components" >> "$GITHUB_OUTPUT"
+      - name: Build requested components in their Linux toolchain images
+        id: components
+        continue-on-error: true
+        env:
+          COMPONENTS: ${{ steps.profile.outputs.components }}
+          SPIN_VERSION: 3.4.1
+        run: |
+          export TEST_UID="$(id -u)" TEST_GID="$(id -g)"
+          services="$(printf '%s' "$COMPONENTS" | tr ',' ' ')"
+          docker compose --parallel 1 build base $services
+          docker compose run --rm base
+          failed=0
+          for service in $services; do
+            if ! docker compose run --rm --no-deps "$service"; then failed=1; fi
+          done
+          exit "$failed"
       - name: Deploy SDK profile
+        id: cloud-deploy
+        if: always() && steps.profile.outcome == 'success' && steps.components.outcome == 'success'
         env:
           SPIN_AUTH_TOKEN: ${{ secrets.FERMYON_CLOUD_TOKEN }}
           DEMO_API_TOKEN: ${{ secrets.DEMO_API_TOKEN }}
+          COMPONENTS: ${{ steps.profile.outputs.components }}
           KV_STORE: ${{ vars.FERMYON_KV_STORE || 'cloud-language-lab' }}
           SQLITE_DATABASE: ${{ vars.FERMYON_SQLITE_DATABASE || 'cloud-language-lab' }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          MYSQL_URL: ${{ secrets.MYSQL_URL }}
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+          GREETING: ${{ vars.DEMO_GREETING || 'Hello from Fermyon Cloud' }}
+          REDIS_HOST: ${{ vars.REDIS_HOST }}
+          MYSQL_HOST: ${{ vars.MYSQL_HOST }}
+          POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
         run: |
           test "${#DEMO_API_TOKEN}" -ge 24
-          spin cloud deploy -f spin.local.toml --variable api_token="$DEMO_API_TOKEN" --link "kv:default=$KV_STORE" --link "sqlite:default=$SQLITE_DATABASE"
+          args=(--variable "api_token=$DEMO_API_TOKEN" --variable "greeting=$GREETING")
+          if [[ -n "$REDIS_URL" ]]; then args+=(--variable "redis_url=$REDIS_URL"); fi
+          if [[ -n "$MYSQL_URL" ]]; then args+=(--variable "mysql_url=$MYSQL_URL"); fi
+          if [[ -n "$POSTGRES_URL" ]]; then args+=(--variable "postgres_url=$POSTGRES_URL"); fi
+          if [[ ",$COMPONENTS," == *,rust,* || ",$COMPONENTS," == *,python,* ]]; then
+            args+=(--link "kv:default=$KV_STORE")
+          fi
+          if [[ ",$COMPONENTS," == *,rust,* ]]; then
+            args+=(--link "sqlite:default=$SQLITE_DATABASE")
+          fi
+          if [[ -n "$REDIS_HOST" ]]; then args+=(--variable "redis_host=$REDIS_HOST"); fi
+          if [[ -n "$MYSQL_HOST" ]]; then args+=(--variable "mysql_host=$MYSQL_HOST"); fi
+          if [[ -n "$POSTGRES_HOST" ]]; then args+=(--variable "postgres_host=$POSTGRES_HOST"); fi
+          spin cloud deploy -f spin.local.toml "${args[@]}"
+      - name: Smoke test Fermyon Cloud deployment
+        id: cloud-smoke
+        if: always() && steps.cloud-deploy.outcome == 'success'
+        continue-on-error: true
+        env:
+          BASE_URL: ${{ vars.FERMYON_CLOUD_BASE_URL }}
+          SPIN_VARIABLE_API_TOKEN: ${{ secrets.DEMO_API_TOKEN }}
+          LANGUAGES: ${{ steps.profile.outputs.components }}
+          SMOKE_TARGET: fermyon-cloud
+          SPIN_VERSION: cloud-managed
+          SMOKE_REPORT_PATH: ${{ runner.temp }}/host-validation/cloud.json
+          TEST_OUTBOUND: '1'
+          TEST_EXTERNAL: ${{ inputs.provider_checks && '1' || '0' }}
+          TEST_AI: ${{ inputs.provider_checks && '1' || '0' }}
+          EXPECTED_GREETING: ${{ vars.DEMO_GREETING || 'Hello from Fermyon Cloud' }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          MYSQL_URL: ${{ secrets.MYSQL_URL }}
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+        run: |
+          test -n "$BASE_URL"
+          node scripts/smoke.mjs
+      - name: Smoke test self-hosted Spin reference
+        id: spin-smoke
+        if: always() && steps.profile.outcome == 'success'
+        continue-on-error: true
+        env:
+          SPIN_VARIABLE_API_TOKEN: ${{ secrets.DEMO_API_TOKEN }}
+          LANGUAGES: ${{ steps.profile.outputs.components }}
+          SMOKE_TARGET: self-hosted-spin
+          SPIN_VERSION: spin-3.4.1
+          SMOKE_REPORT_PATH: ${{ runner.temp }}/host-validation/spin.json
+          TEST_OUTBOUND: '1'
+          TEST_EXTERNAL: ${{ inputs.provider_checks && '1' || '0' }}
+          TEST_AI: ${{ inputs.provider_checks && '1' || '0' }}
+          EXPECTED_GREETING: ${{ vars.DEMO_GREETING || 'Hello from Fermyon Cloud' }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          MYSQL_URL: ${{ secrets.MYSQL_URL }}
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+          REDIS_HOST: ${{ vars.REDIS_HOST }}
+          MYSQL_HOST: ${{ vars.MYSQL_HOST }}
+          POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/host-validation"
+          args=(--variable "api_token=$SPIN_VARIABLE_API_TOKEN" --variable "greeting=$EXPECTED_GREETING")
+          if [[ -n "$REDIS_URL" ]]; then args+=(--variable "redis_url=$REDIS_URL"); fi
+          if [[ -n "$MYSQL_URL" ]]; then args+=(--variable "mysql_url=$MYSQL_URL"); fi
+          if [[ -n "$POSTGRES_URL" ]]; then args+=(--variable "postgres_url=$POSTGRES_URL"); fi
+          if [[ -n "$REDIS_HOST" ]]; then args+=(--variable "redis_host=$REDIS_HOST"); fi
+          if [[ -n "$MYSQL_HOST" ]]; then args+=(--variable "mysql_host=$MYSQL_HOST"); fi
+          if [[ -n "$POSTGRES_HOST" ]]; then args+=(--variable "postgres_host=$POSTGRES_HOST"); fi
+          spin up -f spin.local.toml --listen 127.0.0.1:3000 "${args[@]}" \
+            > "$RUNNER_TEMP/host-validation/spin.log" 2>&1 &
+          spin_pid=$!
+          trap 'kill "$spin_pid" 2>/dev/null || true' EXIT
+          curl --retry 30 --retry-connrefused --retry-delay 2 --silent --show-error \
+            http://127.0.0.1:3000/healthz >/dev/null
+          BASE_URL=http://127.0.0.1:3000 node scripts/smoke.mjs
+      - name: Compare host reports
+        id: compare
+        if: always()
+        run: |
+          node scripts/compare-smoke-reports.mjs \
+            "$RUNNER_TEMP/host-validation/spin.json" \
+            "$RUNNER_TEMP/host-validation/cloud.json" \
+            "$RUNNER_TEMP/host-validation/comparison"
+      - name: Upload validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fermyon-cloud-host-comparison
+          path: |
+            ${{ runner.temp }}/host-validation/
+            reports/
+          if-no-files-found: warn
+      - name: Require all validation stages to pass
+        if: always()
+        env:
+          COMPONENTS_OUTCOME: ${{ steps.components.outcome }}
+          CLOUD_OUTCOME: ${{ steps.cloud-deploy.outcome }}
+          CLOUD_SMOKE_OUTCOME: ${{ steps.cloud-smoke.outcome }}
+          SPIN_SMOKE_OUTCOME: ${{ steps.spin-smoke.outcome }}
+          COMPARE_OUTCOME: ${{ steps.compare.outcome }}
+        run: |
+          test "$COMPONENTS_OUTCOME" = success
+          test "$CLOUD_OUTCOME" = success
+          test "$CLOUD_SMOKE_OUTCOME" = success
+          test "$SPIN_SMOKE_OUTCOME" = success
+          test "$COMPARE_OUTCOME" = success

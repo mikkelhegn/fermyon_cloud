@@ -97,6 +97,34 @@ export async function combineReports(directory, languages) {
   return true;
 }
 
+export async function validateReports(directory, languages) {
+  const problems = [];
+  for (const language of languages) {
+    let report;
+    try {
+      report = JSON.parse(await readFile(resolve(directory, language, "local-test-results.json"), "utf8"));
+    } catch (error) {
+      problems.push(`${language}: missing or invalid JSON report (${error.message})`);
+      continue;
+    }
+    if (report.unitTests !== "PASS") problems.push(`${language}: shared unit tests ${report.unitTests ?? "missing"}`);
+    if (report.results.length !== 1 || report.results[0].component !== language) {
+      problems.push(`${language}: expected exactly one matching component result`);
+      continue;
+    }
+    if (report.results[0].result !== "PASS") {
+      problems.push(`${language}: ${report.results[0].result} (${report.results[0].detail})`);
+    }
+  }
+  try {
+    const markdown = await readFile(resolve(directory, "local-test-results.md"), "utf8");
+    if (!markdown.includes("## Excluded From Automated Spin Tests")) problems.push("combined Markdown is missing the test-exclusion section");
+  } catch (error) {
+    problems.push(`combined Markdown report is missing (${error.message})`);
+  }
+  return { passed: problems.length === 0, problems };
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = fileURLToPath(new URL("../", import.meta.url));
   const manifest = parse(await readFile(resolve(root, "spin.toml"), "utf8"));
@@ -104,6 +132,13 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const directory = resolve(root, "reports");
   if (process.argv.includes("--prepare")) {
     await prepareReports(directory, languages);
+  } else if (process.argv.includes("--validate")) {
+    const validation = await validateReports(directory, languages);
+    if (validation.passed) console.log(`Validated ${languages.length} language reports.`);
+    else {
+      for (const problem of validation.problems) console.error(problem);
+      process.exitCode = 1;
+    }
   } else {
     assert.ok(await combineReports(directory, languages), "Some language reports are missing; run all languages first");
     console.log(`Report: ${resolve(directory, "local-test-results.md")}`);

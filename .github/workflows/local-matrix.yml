@@ -1,0 +1,51 @@
+name: Local Language Matrix
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 5 * * 1'
+permissions:
+  contents: read
+jobs:
+  local-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Build and run all tested language containers
+        id: matrix
+        continue-on-error: true
+        env:
+          LANGUAGE_BUILD_TIMEOUT_MS: '900000'
+          LANGUAGE_STARTUP_TIMEOUT_MS: '300000'
+        run: |
+          export TEST_UID="$(id -u)" TEST_GID="$(id -g)"
+          services="$(node --input-type=module -e 'import { readFile } from "node:fs/promises"; import { parse } from "smol-toml"; import { getTestLanguages } from "./scripts/language-reports.mjs"; console.log(getTestLanguages(parse(await readFile("spin.toml", "utf8"))).join(" "));')"
+          docker compose --parallel 1 build base $services
+          docker compose run --rm base
+          failed=0
+          for service in $services; do
+            if ! docker compose run --rm --no-deps "$service"; then
+              echo "Language service failed: $service"
+              failed=1
+            fi
+          done
+          node scripts/language-reports.mjs --validate || failed=1
+          exit "$failed"
+      - name: Upload language reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-language-matrix
+          path: reports/
+          if-no-files-found: warn
+      - name: Require complete passing matrix
+        if: always()
+        env:
+          MATRIX_OUTCOME: ${{ steps.matrix.outcome }}
+        run: test "$MATRIX_OUTCOME" = success

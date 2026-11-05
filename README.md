@@ -230,11 +230,14 @@ published OpenAPI documentation and least-privilege tokens from an operator or
 CI, not from publicly callable HTTP handlers. In GitHub, create a protected
 `fermyon-cloud` environment with `FERMYON_CLOUD_TOKEN` and `DEMO_API_TOKEN`
 secrets. The deploy workflow is manual, not triggered by untrusted pull requests.
-It deploys the Rust/JS/TS profile. Review action dependencies and pin commit SHAs
-according to your organization's supply-chain policy.
+It accepts a comma-separated tested component profile (default Rust/JS/TS),
+deploys it, runs the same smoke checks against Fermyon Cloud and self-hosted Spin,
+and uploads a comparison report. Set the environment variable
+`FERMYON_CLOUD_BASE_URL` to the deployed app's base URL. Review action dependencies
+and pin commit SHAs according to your organization's supply-chain policy.
 
-CI uses explicit `kv:default` and `sqlite:default` resource links so it cannot
-block waiting for provisioning input. Set environment variables
+The deploy workflow uses explicit `kv:default` and `sqlite:default` resource
+links so it cannot block waiting for provisioning input. Set environment variables
 `FERMYON_KV_STORE` and `FERMYON_SQLITE_DATABASE` in GitHub to existing Cloud
 resource names, especially when your account already has its one SQLite
 database. Otherwise it attempts to create resources named `cloud-language-lab`.
@@ -243,23 +246,64 @@ Delete only when intended: `spin cloud apps delete cloud-language-lab`. Linked
 databases and KV stores have independent lifecycles; inspect links before
 deleting resources. Never delete persistent resources merely to upgrade code.
 
-## Verification
+## Validation Scope
 
 ```sh
 npm test
-npm run build:typescript
-spin build -f spin.local.toml
-npm run smoke
+docker compose build
+docker compose up
 ```
 
-authentication, KV, SQLite, input limits, and both draft WASI interfaces. The
-The F# component built successfully with WASI SDK 19.0 and ran directly under
-Wasmtime 50.0.1, printing its expected CGI response. Under Spin 4.2.5, its WAGI
-Preview 1 adapter traps during `allocate_stack` before the handler writes output;
-the route is therefore excluded from automated Spin tests, not counted as a
-pass. The Docker matrix contains 13 language services. The complete matrix has
-not been rerun since the latest C++/C# configuration changes and F# exclusion.
-Cloud deployment, AI providers, and external databases remain unverified.
+`npm test` checks manifest invariants, configuration, report generation, and the
+JavaScript handler. CI builds only the Rust/JavaScript/TypeScript core profile;
+it does not claim that every component or Cloud API passed.
+
+The **Local Language Matrix** GitHub Actions workflow runs the 13-language local
+Spin matrix weekly and on manual dispatch. Download its `local-language-matrix`
+artifact to inspect the combined Markdown report and per-language JSON/logs.
+This is the same local-host validation as Docker Compose, not a Cloud-host test.
+
+Docker Compose builds and locally tests 13 language components against Spin.
+This verifies local compilation and HTTP behavior, not Fermyon Cloud support.
+F# stays in the app manifest but is excluded from automated profiles: its WASI
+SDK 19 module prints the expected response under Wasmtime 50.0.1, while Spin 4.2.5
+traps in the WAGI Preview 1 adapter during `allocate_stack`.
+
+The manual `Deploy To Fermyon Cloud` workflow is the live Cloud check. It builds
+the selected tested profile in Linux toolchain images, deploys it, runs named API
+smoke checks against both the Cloud URL and a self-hosted Spin 3.4.1 reference,
+and uploads JSON plus a Markdown status comparison. A check that fails on both
+hosts is still a failure, not a match. Cloud and Spin results validate the same
+HTTP/API contract but do not assert identical dynamic response bodies.
+
+Configure these variables/secrets in the `fermyon-cloud` environment:
+
+- `FERMYON_CLOUD_BASE_URL` variable: deployed app URL, without a route suffix.
+- `DEMO_GREETING` variable (optional): greeting value applied to both hosts for deterministic configuration checks.
+- `FERMYON_CLOUD_TOKEN` secret: Cloud CLI authentication.
+- `DEMO_API_TOKEN` secret: app token used by both smoke runs; at least 24 characters.
+- `FERMYON_KV_STORE` and `FERMYON_SQLITE_DATABASE` variables: existing Cloud resources when not using the default names.
+- `REDIS_URL`, `MYSQL_URL`, `POSTGRES_URL` secrets and matching `REDIS_HOST`, `MYSQL_HOST`, `POSTGRES_HOST` variables: only when enabling `provider_checks` and testing those services.
+
+The Cloud workflow checks outbound HTTP to `example.com` by default. AI and
+Redis/MySQL/PostgreSQL checks are opt-in because they require provider access,
+credentials, allowlists, and/or model quota. WASI draft config/key-value checks run in the default Rust
+profile and will reveal Cloud-vs-Spin discrepancies rather than being assumed
+supported. A successful smoke run is evidence for only the selected profile,
+configured features, account, and point in time; it is not a vendor certification.
+
+To compare two already-running hosts manually, write one JSON report per host and
+compare them:
+
+```sh
+BASE_URL="$FERMYON_CLOUD_BASE_URL" SPIN_VARIABLE_API_TOKEN="$DEMO_API_TOKEN" \
+  SMOKE_TARGET=fermyon-cloud SMOKE_REPORT_PATH=reports/cloud.json npm run smoke
+BASE_URL="http://127.0.0.1:3000" SPIN_VARIABLE_API_TOKEN="$DEMO_API_TOKEN" \
+  SMOKE_TARGET=self-hosted-spin SMOKE_REPORT_PATH=reports/spin.json npm run smoke
+npm run compare:smoke -- reports/spin.json reports/cloud.json reports/comparison
+```
+
+No current all-language Cloud pass is claimed.
 
 ## Sources
 

@@ -32,6 +32,13 @@ when tests fail. Language containers do not create individual Markdown reports.
 If a container crashes before writing its JSON, the combined report is not
 created; inspect `docker compose ps -a` and container output for the missing run.
 
+The full local matrix also runs in GitHub Actions through the **Local Language
+Matrix** workflow. It runs weekly and can be started manually from the Actions
+tab. Its `local-language-matrix` artifact contains the combined report and
+per-language logs; the job fails if any language or the report gate fails.
+Provider-dependent Cloud checks are separate and are not part of this local
+matrix.
+
 To build and test just one language, with a meaningful test exit code:
 
 ```sh
@@ -138,6 +145,8 @@ local `.env` file; Compose forwards them to every language service.
 
 Compiler versions remain build arguments in each Dockerfile. Configure overrides
 in the service's Compose `build.args`; shared Node/Spin overrides belong to `base`.
+The normal local matrix uses Spin 4.2.5. The manual Cloud comparison workflow
+sets `SPIN_VERSION=3.4.1` for the Linux language images to match its Cloud target.
 Ruby downloads and integrity-checks its runtime on its first test; PHP downloads
 its manifest-pinned runtime through Spin. Rust and experimental WASI builds may
 also download dependencies, so this is not an offline setup.

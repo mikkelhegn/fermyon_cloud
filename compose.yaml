@@ -32,6 +32,7 @@ services:
       args:
         TEST_UID: ${TEST_UID:-1000}
         TEST_GID: ${TEST_GID:-1000}
+        SPIN_VERSION: ${SPIN_VERSION:-4.2.5}
     entrypoint: ["node", "scripts/language-reports.mjs"]
     command: ["--prepare"]
     volumes:

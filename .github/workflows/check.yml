@@ -23,3 +23,17 @@ jobs:
       - run: npm test
       - run: node scripts/select-components.mjs rust,javascript,typescript
       - run: spin build -f spin.local.toml
+      - name: Smoke test core Spin APIs
+        env:
+          BASE_URL: http://127.0.0.1:3000
+          LANGUAGES: rust,javascript,typescript
+          SMOKE_TARGET: ci-spin
+          SPIN_VERSION: 3.4.1
+          SMOKE_REPORT_PATH: ${{ runner.temp }}/spin-smoke.json
+        run: |
+          spin up -f spin.local.toml --listen 127.0.0.1:3000 > "$RUNNER_TEMP/spin.log" 2>&1 &
+          spin_pid=$!
+          trap 'kill "$spin_pid" 2>/dev/null || true' EXIT
+          curl --retry 30 --retry-connrefused --retry-delay 2 --silent --show-error \
+            http://127.0.0.1:3000/healthz >/dev/null
+          npm run smoke

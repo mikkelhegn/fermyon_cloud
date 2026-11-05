@@ -1,11 +1,15 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { parse } from "smol-toml";
-import { selectComponents } from "../scripts/select-components.mjs";
-import { combineReports, getTestLanguages, prepareReports, testExclusions } from "../scripts/language-reports.mjs";
+import { selectComponents, selectTestComponents } from "../scripts/select-components.mjs";
+import { combineReports, getTestLanguages, prepareReports, testExclusions, validateReports } from "../scripts/language-reports.mjs";
+import { compareReports, missingReport } from "../scripts/compare-smoke-reports.mjs";
 
 const manifest = parse(await readFile(new URL("../spin.toml", import.meta.url), "utf8"));
 const csharpProject = await readFile(new URL("../components/csharp/Component.csproj", import.meta.url), "utf8");
@@ -58,6 +62,108 @@ test("F# remains an app component but is excluded from automated Spin tests", ()
   assert.match(testExclusions.fsharp, /Spin 4\.2\.5 traps in its WAGI Preview 1 adapter/);
 });
 
+test("smoke runner validates core language and API contracts and writes named outcomes", async (context) => {
+  const directory = await mkdtemp(join(tmpdir(), "host-smoke-"));
+  let kv = null;
+  const notes = [];
+  const server = createServer((request, response) => {
+    const chunks = [];
+    request.on("data", (chunk) => chunks.push(chunk));
+    request.on("end", () => {
+      const body = Buffer.concat(chunks).toString();
+      const path = request.url.split("?", 1)[0];
+      const authorized = request.headers.authorization === "Bearer test-token-12345678901234567890";
+      const json = (status, value) => {
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify(value));
+      };
+    response.setHeader("content-type", "application/json");
+      if (path === "/healthz") return json(200, { status: "ok" });
+      if (path === "/api/rust") return json(200, { language: "Rust", greeting: "Hello from Fermyon Cloud", composed_greeting: "Hello from composed component" });
+      if (path === "/api/javascript") return json(200, { language: "JavaScript" });
+      if (path === "/api/python") return json(200, { language: "Python" });
+      if (path.startsWith("/api/rust/") || path === "/api/python/kv") {
+        if (!authorized) return json(401, { error: "Unauthorized" });
+        if (path === "/api/rust/kv") {
+          if (request.method === "PUT" && body.length > 65536) return json(413, { error: "too large" });
+          if (request.method === "PUT") { kv = body; return json(200, { stored: true }); }
+          if (request.method === "DELETE") { kv = null; return json(200, { deleted: true }); }
+          return json(200, { value: kv });
+        }
+        if (path === "/api/rust/wasi-keyvalue") return json(200, { value: kv });
+        if (path === "/api/rust/wasi-config") return json(200, { greeting: "Hello from Fermyon Cloud" });
+        if (path === "/api/python/kv") return json(200, { language: "Python", value: kv });
+        if (path === "/api/rust/sqlite") {
+          if (request.method === "POST" && !body.trim()) return json(400, { error: "empty" });
+          if (request.method === "POST") notes.push(body);
+          return json(200, { notes: notes.map((note) => ({ body: note })) });
+        }
+      }
+      return json(404, { error: "not found" });
+    });
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  context.after(async () => {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    await rm(directory, { recursive: true, force: true });
+  });
+  const address = server.address();
+  const reportPath = join(directory, "javascript.json");
+  const child = spawn(process.execPath, [fileURLToPath(new URL("../scripts/smoke.mjs", import.meta.url))], {
+    cwd: fileURLToPath(new URL("../", import.meta.url)),
+    env: { ...process.env, BASE_URL: `http://127.0.0.1:${address.port}`, LANGUAGES: "rust,javascript,python", SMOKE_TARGET: "mock-host", SMOKE_REPORT_PATH: reportPath, SPIN_VARIABLE_API_TOKEN: "test-token-12345678901234567890", TEST_OUTBOUND: "0", TEST_EXTERNAL: "0", TEST_AI: "0" },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let output = "";
+  child.stdout.on("data", (chunk) => { output += chunk; });
+  child.stderr.on("data", (chunk) => { output += chunk; });
+  const exitCode = await new Promise((resolve) => child.once("close", resolve));
+  assert.equal(exitCode, 0, output);
+  const report = JSON.parse(await readFile(reportPath, "utf8"));
+  assert.equal(report.target, "mock-host");
+  assert.equal(report.totals.FAIL, 0);
+  assert.ok(report.checks.some(({ name, status }) => name === "rust:kv:deleted-read" && status === "PASS"));
+  assert.ok(report.checks.some(({ name, status }) => name === "rust:wasi-config:read" && status === "PASS"));
+  assert.ok(report.checks.some(({ name, status }) => name === "python:shared-kv:read" && status === "PASS"));
+});
+
+test("host comparison reports discrepancies and never counts matching failures as passes", () => {
+  const reference = { target: "spin", baseUrl: "http://spin", spin: "3.4.1", checks: [{ name: "health", status: "PASS" }, { name: "kv", status: "FAIL" }] };
+  const candidate = { target: "cloud", baseUrl: "https://cloud.example", spin: "cloud", checks: [{ name: "health", status: "PASS" }, { name: "kv", status: "PASS" }] };
+  const report = compareReports(reference, candidate);
+  assert.deepEqual(report.totals, { PASS: 1, FAIL: 1, DISCREPANCY: 1 });
+  assert.equal(report.passed, false);
+
+  const sameFailures = compareReports(reference, { ...candidate, checks: reference.checks });
+  assert.deepEqual(sameFailures.totals, { PASS: 1, FAIL: 1, DISCREPANCY: 0 });
+  assert.equal(sameFailures.passed, false);
+  const deployed = { ...candidate, checks: [{ name: "smoke:report", status: "PASS" }] };
+  const missing = compareReports(missingReport("cloud.json"), deployed);
+  assert.equal(missing.passed, false);
+  assert.equal(missing.checks.find(({ name }) => name === "smoke:report").candidate, "PASS");
+  assert.equal(missing.checks.find(({ name }) => name === "smoke:report").reference, "MISSING");
+});
+
+test("language report validation requires all selected results and unit tests to pass", async (context) => {
+  const directory = await mkdtemp(join(tmpdir(), "language-report-validation-"));
+  context.after(() => rm(directory, { recursive: true, force: true }));
+  const languagesToValidate = ["python", "go"];
+  const report = (component, result) => ({
+    unitTests: "PASS",
+    results: [{ component, result, detail: result === "PASS" ? "ok" : "build failed" }],
+  });
+  for (const language of languagesToValidate) {
+    await mkdir(join(directory, language));
+    await writeFile(join(directory, language, "local-test-results.json"), JSON.stringify(report(language, "PASS")));
+  }
+  await writeFile(join(directory, "local-test-results.md"), "## Excluded From Automated Spin Tests\n");
+  assert.deepEqual(await validateReports(directory, languagesToValidate), { passed: true, problems: [] });
+  await writeFile(join(directory, "go", "local-test-results.json"), JSON.stringify(report("go", "FAIL")));
+  const validation = await validateReports(directory, languagesToValidate);
+  assert.equal(validation.passed, false);
+  assert.ok(validation.problems.some((problem) => problem.includes("go: FAIL (build failed)")));
+});
+
 test("secrets and outbound capabilities are limited to their consumers", () => {
   for (const variable of ["api_token", "redis_url", "mysql_url", "postgres_url"]) {
     assert.equal(manifest.variables[variable].secret, true);
@@ -79,6 +185,7 @@ test("profile selection preserves configuration and removes unused routes", () =
   assert.equal(Object.keys(manifest.component).length, languages.length);
   assert.throws(() => selectComponents(manifest, ["missing"]), /Unknown component/);
   assert.throws(() => selectComponents(manifest, []), /at least one/);
+  assert.throws(() => selectTestComponents(manifest, ["fsharp"]), /excluded from automated Spin tests/);
 });
 
 test("combined report waits for every language and links failures to their logs", async (context) => {
