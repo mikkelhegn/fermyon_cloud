@@ -10,7 +10,28 @@ class IncomingHandler(BaseHandler):
         if request.method != "GET":
             return Response(405, {"allow": "GET"}, b"")
         path = request.uri.split("?", 1)[0].rstrip("/")
-        if path.endswith("/kv"):
+        if path.endswith("/probe/variables"):
+            token = variables.get("api_token")
+            provided = dict(request.headers).get("authorization", "")
+            if len(token) < 24 or not hmac.compare_digest(
+                provided.encode(), ("Bearer " + token).encode()
+            ):
+                return Response(401, {}, b"")
+            result = {"language": "Python", "api": "variables", "result": {"greeting": variables.get("greeting")}}
+        elif path.endswith("/probe/kv"):
+            token = variables.get("api_token")
+            provided = dict(request.headers).get("authorization", "")
+            if len(token) < 24 or not hmac.compare_digest(
+                provided.encode(), ("Bearer " + token).encode()
+            ):
+                return Response(401, {}, b"")
+            try:
+                value = key_value.open_default().get("sample")
+                result = {"language": "Python", "api": "kv", "result": {"value": value.decode("utf-8", errors="replace") if value is not None else None}}
+            except Exception:
+                print("component=python event=kv_failed")
+                return Response(503, {}, b"")
+        elif path.endswith("/kv"):
             token = variables.get("api_token")
             provided = dict(request.headers).get("authorization", "")
             if len(token) < 24 or not hmac.compare_digest(
@@ -24,7 +45,7 @@ class IncomingHandler(BaseHandler):
                 print("component=python event=kv_failed")
                 return Response(503, {}, b"")
         elif path.endswith("/api/python"):
-            result = {"language": "Python", "runtime": "WASI Preview 2"}
+            result = {"language": "Python", "runtime": "WASI Preview 2", "apis": ["variables", "kv"]}
         else:
             return Response(404, {}, b"")
         print("component=python event=request")

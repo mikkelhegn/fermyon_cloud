@@ -1,0 +1,1 @@
+component=rust method=GET path=/api/rust

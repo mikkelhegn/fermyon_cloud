@@ -65,6 +65,23 @@ Rust's response also invokes a separate WIT dependency, demonstrating
 | `zig` | Zig | Zig `0.13.0` | WAGI; compiler pinned to this source API |
 | `php` | PHP | Official Spin template's PHP-CGI `8.2.6` artifact | WAGI; older runtime, not recommended for production |
 
+Each non-WAGI component exposes its SDK-backed checks under
+`GET /api/<language>/probe/<api>` (LLM probes use POST) and advertises the same
+API names in `GET /api/<language>`. Every probe requires the bearer token
+configured as `api_token`. The implemented host API surface is deliberately
+SDK-specific:
+
+| Component | SDK host APIs probed by that component |
+| --- | --- |
+| Rust | Variables, KV, SQLite, LLM inference/embeddings, Redis, MySQL, PostgreSQL, outbound HTTP, WASI config/KV |
+| JavaScript / TypeScript | Variables, KV, SQLite, LLM inference/embeddings, Redis, MySQL, PostgreSQL, outbound HTTP |
+| Python | Variables and KV |
+| Go | Variables, KV, SQLite, LLM inference/embeddings, Redis, MySQL, PostgreSQL |
+| C# | Variables/config, outbound HTTP, Redis, PostgreSQL |
+
+C, C++, Grain, Ruby, Swift, Zig, and PHP are WAGI examples and do not implement
+these Spin host API probe routes.
+
 This is not a claim that Fermyon certifies all WASI languages or that all
 languages have equal host-API access. WAGI handlers demonstrate HTTP execution;
 they do not pretend to implement Spin SDK APIs. Other languages capable of
@@ -76,6 +93,26 @@ initializing the WAGI Preview 1 adapter (`cabi_realloc` / `allocate_stack`),
 before the F# handler writes output. F# remains in the app manifest but is
 excluded from the automated Spin test matrix pending a compatible component
 runtime; the WAGI deprecation warning itself is not the cause of the trap.
+
+## Per-Language Host API Probes
+
+Every non-WAGI SDK component advertises its host APIs in `GET /api/<language>`.
+Protected probes use `GET /api/<language>/probe/<api>` (except `llm`, which uses
+POST) and require the app's bearer token. Probe calls exercise the SDK imported
+by that language rather than calling Rust on its behalf.
+
+| Component | Host API probes implemented in that language |
+| --- | --- |
+| Rust | Variables, KV, SQLite, LLM inference/embeddings, Redis, MySQL, PostgreSQL, outbound HTTP, WASI config/KV |
+| JavaScript / TypeScript | Variables, KV, SQLite, LLM inference/embeddings, Redis, MySQL, PostgreSQL, outbound HTTP |
+| Python | Variables and KV |
+| Go | Variables, KV, SQLite, LLM inference/embeddings, Redis, MySQL, PostgreSQL |
+| C# | Variables/config, outbound HTTP, Redis, PostgreSQL |
+
+C, C++, Grain, Ruby, Swift, Zig, and PHP use WAGI and are intentionally excluded
+from Spin host-API probes. Their test services cover build and HTTP execution
+only. Python's SDK does not expose the other listed services in its pinned
+version; the C# preview SDK does not expose KV, SQLite, MySQL, or LLM APIs.
 
 To include Python, install Python 3.10+ and create the project venv:
 

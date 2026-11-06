@@ -1,0 +1,20 @@
+Warning: HTTP route /api/grain uses the WAGI executor.
+Warning: WAGI will be deprecated in a future version of Spin.
+To provide feedback, please visit https://github.com/spinframework/spin/issues/3520.
+
+Logging component stdio to "/workspace/reports/grain/local-test-logs/grain-component-logs/"
+
+Serving http://127.0.0.1:45279
+Available Routes:
+  grain: http://127.0.0.1:45279/api/grain
+
+GET /api/grain
+HTTP 200
+{"language":"Grain","runtime":"WAGI"}
+
+
+Component log: grain_stderr.txt
+
+
+Component log: grain_stdout.txt
+

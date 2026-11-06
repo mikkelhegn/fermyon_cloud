@@ -1,0 +1,20 @@
+Warning: HTTP route /api/c uses the WAGI executor.
+Warning: WAGI will be deprecated in a future version of Spin.
+To provide feedback, please visit https://github.com/spinframework/spin/issues/3520.
+
+Logging component stdio to "/workspace/reports/c/local-test-logs/c-component-logs/"
+
+Serving http://127.0.0.1:32777
+Available Routes:
+  c: http://127.0.0.1:32777/api/c
+
+GET /api/c
+HTTP 200
+{"language":"C","runtime":"WAGI"}
+
+
+Component log: c_stderr.txt
+
+
+Component log: c_stdout.txt
+

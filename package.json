@@ -11,6 +11,13 @@
     "compare:smoke": "node scripts/compare-smoke-reports.mjs"
   },
   "dependencies": {
+    "@spinframework/spin-kv": "1.0.0",
+    "@spinframework/spin-llm": "1.0.0",
+    "@spinframework/spin-mysql": "1.0.0",
+    "@spinframework/spin-postgres": "1.0.0",
+    "@spinframework/spin-redis": "1.0.0",
+    "@spinframework/spin-sqlite": "1.0.0",
+    "@spinframework/spin-variables": "1.0.0",
     "@spinframework/wasi-http-proxy": "2.0.0"
   },
   "devDependencies": {

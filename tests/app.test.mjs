@@ -79,9 +79,16 @@ test("smoke runner validates core language and API contracts and writes named ou
       };
     response.setHeader("content-type", "application/json");
       if (path === "/healthz") return json(200, { status: "ok" });
-      if (path === "/api/rust") return json(200, { language: "Rust", greeting: "Hello from Fermyon Cloud", composed_greeting: "Hello from composed component" });
-      if (path === "/api/javascript") return json(200, { language: "JavaScript" });
-      if (path === "/api/python") return json(200, { language: "Python" });
+      if (path === "/api/rust") return json(200, { language: "Rust", greeting: "Hello from Fermyon Cloud", composed_greeting: "Hello from composed component", apis: ["kv", "sqlite"] });
+      if (path === "/api/javascript") return json(200, { language: "JavaScript", apis: ["variables", "kv", "sqlite"] });
+      if (path === "/api/python") return json(200, { language: "Python", apis: ["variables", "kv"] });
+      const probe = path.match(/^\/api\/(javascript|python)\/probe\/(variables|kv|sqlite)$/);
+      if (probe) {
+        if (!authorized) return json(401, { error: "Unauthorized" });
+        const [, language, api] = probe;
+        const result = api === "variables" ? { greeting: "Hello from Fermyon Cloud" } : api === "kv" ? { value: kv } : { value: 1 };
+        return json(200, { language: language === "javascript" ? "JavaScript" : "Python", api, result });
+      }
       if (path.startsWith("/api/rust/") || path === "/api/python/kv") {
         if (!authorized) return json(401, { error: "Unauthorized" });
         if (path === "/api/rust/kv") {
@@ -118,12 +125,14 @@ test("smoke runner validates core language and API contracts and writes named ou
   child.stdout.on("data", (chunk) => { output += chunk; });
   child.stderr.on("data", (chunk) => { output += chunk; });
   const exitCode = await new Promise((resolve) => child.once("close", resolve));
-  assert.equal(exitCode, 0, output);
   const report = JSON.parse(await readFile(reportPath, "utf8"));
+  assert.equal(exitCode, 0, `${output}\n${JSON.stringify(report.checks)}`);
   assert.equal(report.target, "mock-host");
   assert.equal(report.totals.FAIL, 0);
   assert.ok(report.checks.some(({ name, status }) => name === "rust:kv:deleted-read" && status === "PASS"));
   assert.ok(report.checks.some(({ name, status }) => name === "rust:wasi-config:read" && status === "PASS"));
+  assert.ok(report.checks.some(({ name, status }) => name === "javascript:sqlite" && status === "PASS"));
+  assert.ok(report.checks.some(({ name, status }) => name === "python:variables" && status === "PASS"));
   assert.ok(report.checks.some(({ name, status }) => name === "python:shared-kv:read" && status === "PASS"));
 });
 
@@ -168,12 +177,25 @@ test("secrets and outbound capabilities are limited to their consumers", () => {
   for (const variable of ["api_token", "redis_url", "mysql_url", "postgres_url"]) {
     assert.equal(manifest.variables[variable].secret, true);
   }
+  const outboundByComponent = {
+    rust: ["https://example.com", "{{ redis_host }}", "{{ mysql_host }}", "{{ postgres_host }}"],
+    javascript: ["https://example.com", "{{ redis_host }}", "{{ mysql_host }}", "{{ postgres_host }}"],
+    typescript: ["https://example.com", "{{ redis_host }}", "{{ mysql_host }}", "{{ postgres_host }}"],
+    go: ["{{ redis_host }}", "{{ mysql_host }}", "{{ postgres_host }}"],
+    csharp: ["https://example.com", "{{ redis_host }}", "{{ postgres_host }}"],
+  };
   for (const [name, component] of Object.entries(manifest.component)) {
-    if (name !== "rust") assert.deepEqual(component.allowed_outbound_hosts, []);
-    if (!["rust", "python"].includes(name)) assert.equal(component.variables, undefined);
+    assert.deepEqual(component.allowed_outbound_hosts, outboundByComponent[name] ?? []);
+    if (!["rust", "javascript", "typescript", "python", "go", "csharp"].includes(name)) assert.equal(component.variables, undefined);
   }
   assert.deepEqual(manifest.component.python.key_value_stores, ["default"]);
   assert.deepEqual(manifest.component.rust.sqlite_databases, ["default"]);
+  for (const language of ["javascript", "typescript", "go"]) {
+    assert.deepEqual(manifest.component[language].key_value_stores, ["default"]);
+    assert.deepEqual(manifest.component[language].sqlite_databases, ["default"]);
+    assert.ok(manifest.component[language].ai_models.includes("llama2-chat"));
+  }
+  assert.deepEqual(manifest.component.csharp.allowed_outbound_hosts, outboundByComponent.csharp);
   assert.ok(manifest.component.rust.dependencies["lab:greeting/formatter@1.0.0"]);
 });
 
@@ -225,8 +247,14 @@ test("combined report waits for every language and links failures to their logs"
   }
 });
 
-globalThis.addEventListener = () => {};
-const { handler } = await import("../components/javascript/index.js");
+const { createHandler } = await import("../components/javascript/handler.js");
+const handler = createHandler({
+  language: "JavaScript",
+  runtime: "WASI Preview 2",
+  apis: ["variables"],
+  getVariable: () => "",
+  probe: () => ({ greeting: "Hello from Fermyon Cloud" }),
+});
 
 test("JavaScript handler returns JSON and rejects writes", async () => {
   const response = await handler(new Request("http://localhost/api/javascript"));

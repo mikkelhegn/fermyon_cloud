@@ -1,0 +1,18 @@
+Logging component stdio to "/workspace/reports/go/local-test-logs/go-component-logs/"
+
+Serving http://127.0.0.1:40969
+Available Routes:
+  go: http://127.0.0.1:40969/api/go
+component=go event=request
+
+GET /api/go
+HTTP 200
+{"language":"Go","runtime":"TinyGo / WASI Preview 1"}
+
+
+Component log: go_stderr.txt
+
+
+Component log: go_stdout.txt
+component=go event=request
+

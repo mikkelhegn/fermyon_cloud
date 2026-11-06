@@ -1,0 +1,19 @@
+Logging component stdio to "/workspace/reports/javascript/local-test-logs/javascript-component-logs/"
+Preparing Wasm modules is taking a few seconds...
+
+
+Serving http://127.0.0.1:39827
+Available Routes:
+  javascript: http://127.0.0.1:39827/api/javascript
+component=javascript event=request
+
+GET /api/javascript
+HTTP 200
+{"language":"JavaScript","runtime":"WASI Preview 2"}
+
+Component log: javascript_stderr.txt
+
+
+Component log: javascript_stdout.txt
+component=javascript event=request
+

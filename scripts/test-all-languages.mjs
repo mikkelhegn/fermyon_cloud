@@ -47,9 +47,9 @@ function stop(child, signal = "SIGTERM") {
   try { process.kill(-child.pid, signal); } catch { child.kill(signal); }
 }
 
-async function execute(command, args, timeout = 180000) {
+async function execute(command, args, timeout = 180000, env = process.env) {
   return new Promise((fulfill) => {
-    const child = spawn(command, args, { cwd: root, detached: true, stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn(command, args, { cwd: root, detached: true, stdio: ["ignore", "pipe", "pipe"], env });
     let output = "";
     let timedOut = false;
     child.stdout.on("data", (data) => { output += data; });
@@ -82,6 +82,8 @@ async function testRuntime(language) {
   const port = await freePort();
   const base = `http://127.0.0.1:${port}`;
   const componentLogDirectory = resolve(logDirectory, `${language}-component-logs`);
+  const apiReportFilename = resolve(logDirectory, `${language}-api-smoke.json`);
+  const apiToken = randomUUID();
   let child;
   let output = "";
   await rm(componentLogDirectory, { recursive: true, force: true });
@@ -91,7 +93,7 @@ async function testRuntime(language) {
     await new Promise((fulfill, reject) => {
       child = spawn("spin", ["up", "-f", filename, "--listen", `127.0.0.1:${port}`, "--log-dir", componentLogDirectory, "--truncate-logs"], {
         cwd: root, detached: true, stdio: ["ignore", "pipe", "pipe"],
-        env: { ...process.env, SPIN_VARIABLE_API_TOKEN: randomUUID() },
+        env: { ...process.env, SPIN_VARIABLE_API_TOKEN: apiToken },
       });
       const timer = setTimeout(() => reject(new Error(`Startup exceeded ${startupTimeout / 1000} seconds`)), startupTimeout);
       const capture = (data) => {
@@ -106,14 +108,19 @@ async function testRuntime(language) {
         reject(new Error(`Spin exited before readiness: code=${code}, signal=${signal}`));
       });
     });
-    const response = await fetch(`${base}/api/${language}`, { signal: AbortSignal.timeout(30000) });
-    const body = await response.text();
-    output += `\nGET /api/${language}\nHTTP ${response.status}\n${body}\n`;
-    assert.equal(response.status, 200);
-    assert.match(response.headers.get("content-type") ?? "", /application\/json/);
-    assert.equal(JSON.parse(body).language, expectedLanguages[language]);
-    if (language === "rust") assert.match(JSON.parse(body).composed_greeting, /composed component/);
-    return { status: "PASS", detail: `HTTP 200; language=${expectedLanguages[language]}` };
+    const smoke = await execute(process.execPath, ["scripts/smoke.mjs"], startupTimeout, {
+      ...process.env,
+      BASE_URL: base,
+      LANGUAGES: language,
+      SPIN_VARIABLE_API_TOKEN: apiToken,
+      SMOKE_TARGET: `local-${language}`,
+      SMOKE_REPORT_PATH: apiReportFilename,
+    });
+    output += `\nAPI smoke checks\n${smoke.output}\n`;
+    assert.equal(smoke.code, 0, smoke.output);
+    const apiReport = JSON.parse(await readFile(apiReportFilename, "utf8"));
+    assert.equal(apiReport.totals.FAIL, 0);
+    return { status: "PASS", detail: `${apiReport.totals.PASS} API checks passed; ${apiReport.skippedChecks.length} optional checks skipped` };
   } catch (error) {
     output += `\nTEST ERROR: ${error.message}\n`;
     return { status: "FAIL", detail: error.message };

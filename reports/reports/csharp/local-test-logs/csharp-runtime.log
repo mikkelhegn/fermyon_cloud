@@ -1,0 +1,19 @@
+Logging component stdio to "/workspace/reports/csharp/local-test-logs/csharp-component-logs/"
+Preparing Wasm modules is taking a few seconds...
+
+
+Serving http://127.0.0.1:42435
+Available Routes:
+  csharp: http://127.0.0.1:42435/api/csharp
+component=csharp event=request
+
+GET /api/csharp
+HTTP 200
+{"language":"C#","runtime":"experimental Spin .NET SDK"}
+
+Component log: csharp_stderr.txt
+
+
+Component log: csharp_stdout.txt
+component=csharp event=request
+

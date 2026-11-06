@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-11-05T12:50:43.592Z",
+  "platform": "Linux x86_64",
+  "spin": "spin 4.2.5 (e09d7d5 2026-10-23)",
+  "toolVersions": {
+    "cargo": "Not installed",
+    "rustc": "Not installed",
+    "node": "v22.20.0",
+    "npm": "10.9.3",
+    "python3": "Not installed",
+    ".venv/bin/python": "Not installed",
+    ".venv/bin/componentize-py": "Not installed",
+    "go": "flag provided but not defined: -version\nGo is a tool for managing Go source code.\n\nUsage:\n\n\tgo <command> [arguments]\n\nThe commands are:\n\n\tbug         start a bug report\n\tbuild       compile packages and dependencies\n\tclean       remove object files and cached files\n\tdoc         show documentation for package or symbol\n\tenv         print Go environment information\n\tfix         update packages to use new APIs\n\tfmt         gofmt (reformat) package sources\n\tgenerate    generate Go files by processing source\n\tget         add dependencies to current module and install them\n\tinstall     compile and install packages and dependencies\n\tlist        list packages or modules\n\tmod         module maintenance\n\twork        workspace maintenance\n\trun         compile and run Go program\n\ttelemetry   manage telemetry data and settings\n\ttest        test packages\n\ttool        run specified go tool\n\tversion     print Go version\n\tvet         report likely mistakes in packages\n\nUse \"go help <command>\" for more information about a command.\n\nAdditional help topics:\n\n\tbuildconstraint build constraints\n\tbuildmode       build modes\n\tc               calling between Go and C\n\tcache           build and test caching\n\tenvironment     environment variables\n\tfiletype        file types\n\tgo.mod          the go.mod file\n\tgopath          GOPATH environment variable\n\tgoproxy         module proxy protocol\n\timportpath      import path syntax\n\tmodules         modules, module versions, and more\n\tmodule-auth     module authentication using go.sum\n\tpackages        package lists and patterns\n\tprivate         configuration for downloading non-public code\n\ttestflag        testing flags\n\ttestfunc        testing functions\n\tvcs             controlling version control with GOVCS\n\nUse \"go help <topic>\" for more information about that topic.",
+    "tinygo": "Unknown command: --version\nTinyGo is a Go compiler for small places.\nversion: 0.35.0\nusage: tinygo <command> [arguments]\ncommands:\n\t\tbuild:\t\tcompile packages and dependencies\n\t\trun:\t\tcompile and run immediately\n\t\ttest:\t\ttest packages\n\t\tflash:\t\tcompile and flash to the device\n\t\tgdb:\t\trun/flash and immediately enter GDB\n\t\tlldb:\t\trun/flash and immediately enter LLDB\n\t\tmonitor:\topen communication port\n\t\tports:\t\tlist available serial ports\n\t\tenv:\t\tlist environment variables used during build\n\t\tlist:\t\trun go list using the TinyGo root\n\t\tclean:\t\tempty cache directory (/home/tester/.cache/tinygo)\n\t\ttargets:\tlist targets\n\t\tinfo:\t\tshow info for specified target\n\t\tversion:\tshow version\n\t\thelp:\t\tprint this help text\nflags:\n  -baudrate int\n    \tbaudrate of serial monitor (default 115200)\n  -buildmode string\n    \tbuild mode to use (default, c-shared)\n  -cpuprofile string\n    \tcpuprofile output\n  -gc string\n    \tgarbage collector to use (none, leaking, conservative)\n  -internal-dumpssa\n    \tdump internal Go SSA\n  -internal-nodwarf\n    \tinternal flag, use -no-debug instead\n  -internal-printir\n    \tprint LLVM IR\n  -internal-verifyir\n    \trun extra verification steps on LLVM IR\n  -interp-timeout duration\n    \tinterp optimization pass timeout (default 3m0s)\n  -ldflags string\n    \tGo link tool compatible ldflags\n  -llvm-features string\n    \tcomma separated LLVM features to enable\n  -monitor\n    \tenable serial monitor\n  -no-debug\n    \tstrip debug information\n  -ocd-commands string\n    \tOpenOCD commands, overriding target spec (can specify multiple separated by commas)\n  -ocd-output\n    \tprint OCD daemon output during debug\n  -opt string\n    \toptimization level: 0, 1, 2, s, z (default \"z\")\n  -p int\n    \tthe number of build jobs that can run in parallel (default 16)\n  -panic string\n    \tpanic strategy (print, trap) (default \"print\")\n  -port string\n    \tflash port (can specify multiple candidates separated by commas)\n  -print-allocs string\n    \tregular expression of functions for which heap allocations should be printed\n  -print-stacks\n    \tprint stack sizes of goroutines\n  -programmer string\n    \twhich hardware programmer to use\n  -scheduler string\n    \twhich scheduler to use (none, tasks, asyncify)\n  -serial string\n    \twhich serial output to use (none, uart, usb, rtt)\n  -size string\n    \tprint sizes (none, short, full, html)\n  -stack-size value\n    \tgoroutine stack size (if unknown at compile time)\n  -tags value\n    \ta space-separated list of extra build tags\n  -target string\n    \tchip/board name or JSON target specification file\n  -timeout duration\n    \tthe length of time to retry locating the MSD volume to be used for flashing (default 20s)\n  -work\n    \tprint the name of the temporary build directory and do not delete this directory on exit\n  -x\tPrint commands\n\nfor more details, see https://tinygo.org/docs/reference/usage/",
+    "zig": "Not installed",
+    "dotnet": "Not installed",
+    "grain": "Not installed",
+    "swiftc": "Not installed",
+    "clang": "Not installed",
+    "ruby": "Not installed"
+  },
+  "unitTests": "PASS",
+  "results": [
+    {
+      "component": "go",
+      "language": "Go",
+      "source": "NOT RUN",
+      "build": "PASS",
+      "runtime": "PASS",
+      "result": "PASS",
+      "detail": "HTTP 200; language=Go"
+    }
+  ],
+  "totals": {
+    "PASS": 1,
+    "FAIL": 0,
+    "BLOCKED": 0
+  }
+}

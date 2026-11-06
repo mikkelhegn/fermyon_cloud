@@ -68,6 +68,7 @@ fn dispatch(request: &Request) -> anyhow::Result<Response> {
             "language": "Rust",
             "greeting": variables::get("greeting")?,
             "composed_greeting": composed::lab::greeting::formatter::greet("Rust"),
+                "apis": ["variables", "kv", "wasi-config", "wasi-keyvalue", "sqlite", "http", "llm", "redis", "mysql", "postgres"],
             "features": ["variables", "key-value", "sqlite", "outbound-http", "ai", "redis", "mysql", "postgres", "component-dependencies", "wasi-config", "wasi-keyvalue"]
         }),
         (&Method::Get, "/api/rust/kv") => {

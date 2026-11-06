@@ -1,0 +1,19 @@
+Logging component stdio to "/workspace/reports/typescript/local-test-logs/typescript-component-logs/"
+Preparing Wasm modules is taking a few seconds...
+
+
+Serving http://127.0.0.1:34031
+Available Routes:
+  typescript: http://127.0.0.1:34031/api/typescript
+component=typescript event=request
+
+GET /api/typescript
+HTTP 200
+{"language":"TypeScript","runtime":"WASI Preview 2"}
+
+Component log: typescript_stderr.txt
+
+
+Component log: typescript_stdout.txt
+component=typescript event=request
+

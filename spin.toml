@@ -28,13 +28,22 @@ component = "rust"
 route = "/api/javascript"
 component = "javascript"
 [[trigger.http]]
+route = "/api/javascript/..."
+component = "javascript"
+[[trigger.http]]
 route = "/api/typescript"
+component = "typescript"
+[[trigger.http]]
+route = "/api/typescript/..."
 component = "typescript"
 [[trigger.http]]
 route = "/api/python/..."
 component = "python"
 [[trigger.http]]
 route = "/api/go"
+component = "go"
+[[trigger.http]]
+route = "/api/go/..."
 component = "go"
 
 [component.rust]
@@ -57,14 +66,32 @@ watch = ["components/rust/src/**/*.rs", "components/rust/Cargo.toml", "component
 
 [component.javascript]
 source = "components/javascript/app.wasm"
-allowed_outbound_hosts = []
+key_value_stores = ["default"]
+sqlite_databases = ["default"]
+ai_models = ["llama2-chat", "all-minilm-l6-v2"]
+allowed_outbound_hosts = ["https://example.com", "{{ redis_host }}", "{{ mysql_host }}", "{{ postgres_host }}"]
+[component.javascript.variables]
+api_token = "{{ api_token }}"
+greeting = "{{ greeting }}"
+redis_url = "{{ redis_url }}"
+mysql_url = "{{ mysql_url }}"
+postgres_url = "{{ postgres_url }}"
 [component.javascript.build]
 command = "npm run build:javascript"
 watch = ["components/javascript/*.js"]
 
 [component.typescript]
 source = "components/typescript/app.wasm"
-allowed_outbound_hosts = []
+key_value_stores = ["default"]
+sqlite_databases = ["default"]
+ai_models = ["llama2-chat", "all-minilm-l6-v2"]
+allowed_outbound_hosts = ["https://example.com", "{{ redis_host }}", "{{ mysql_host }}", "{{ postgres_host }}"]
+[component.typescript.variables]
+api_token = "{{ api_token }}"
+greeting = "{{ greeting }}"
+redis_url = "{{ redis_url }}"
+mysql_url = "{{ mysql_url }}"
+postgres_url = "{{ postgres_url }}"
 [component.typescript.build]
 command = "npm run build:typescript"
 watch = ["components/typescript/*.ts"]
@@ -75,13 +102,23 @@ allowed_outbound_hosts = []
 key_value_stores = ["default"]
 [component.python.variables]
 api_token = "{{ api_token }}"
+greeting = "{{ greeting }}"
 [component.python.build]
 command = "sh scripts/build-python.sh"
 watch = ["components/python/*.py", "components/python/requirements.txt"]
 
 [component.go]
 source = "components/go/app.wasm"
-allowed_outbound_hosts = []
+key_value_stores = ["default"]
+sqlite_databases = ["default"]
+ai_models = ["llama2-chat", "all-minilm-l6-v2"]
+allowed_outbound_hosts = ["{{ redis_host }}", "{{ mysql_host }}", "{{ postgres_host }}"]
+[component.go.variables]
+api_token = "{{ api_token }}"
+greeting = "{{ greeting }}"
+redis_url = "{{ redis_url }}"
+mysql_url = "{{ mysql_url }}"
+postgres_url = "{{ postgres_url }}"
 [component.go.build]
 command = "cd components/go && go mod tidy && tinygo build -target=wasi -buildmode=c-shared -p=1 -gc=leaking -no-debug -o app.wasm ."
 watch = ["components/go/*.go", "components/go/go.mod"]
@@ -96,6 +133,9 @@ component = "cpp"
 executor = { type = "wagi" }
 [[trigger.http]]
 route = "/api/csharp"
+component = "csharp"
+[[trigger.http]]
+route = "/api/csharp/..."
 component = "csharp"
 [[trigger.http]]
 route = "/api/fsharp"
@@ -136,7 +176,12 @@ command = "zig build-exe components/cpp/main.cpp -target wasm32-wasi -O ReleaseS
 
 [component.csharp]
 source = "components/csharp/bin/Release/net8.0/CloudCSharp.wasm"
-allowed_outbound_hosts = []
+allowed_outbound_hosts = ["https://example.com", "{{ redis_host }}", "{{ postgres_host }}"]
+[component.csharp.variables]
+api_token = "{{ api_token }}"
+greeting = "{{ greeting }}"
+redis_url = "{{ redis_url }}"
+postgres_url = "{{ postgres_url }}"
 [component.csharp.build]
 command = "dotnet build components/csharp/Component.csproj -c Release"
 

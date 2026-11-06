@@ -22,7 +22,11 @@ docker compose ps -a
 Compose builds `base` before dependent language images. The base service
 initializes the Node dependency volume, clears previous generated summaries,
 and exits successfully; each tested language then runs the shared unit tests,
-its own build, and an isolated Spin HTTP test.
+its own build, and an isolated Spin HTTP/API test. SDK-backed, non-WAGI
+components advertise and exercise their supported probes under
+`/api/<language>/probe/<api>`; WAGI examples are checked only for HTTP execution.
+LLM, outbound, and external database probes stay opt-in through
+`TEST_AI=1`, `TEST_OUTBOUND=1`, and `TEST_EXTERNAL=1`.
 Services run concurrently and stop after testing. No ports or credentials are
 needed.
 
@@ -31,6 +35,25 @@ creates one combined Markdown report at `reports/local-test-results.md`, even
 when tests fail. Language containers do not create individual Markdown reports.
 If a container crashes before writing its JSON, the combined report is not
 created; inspect `docker compose ps -a` and container output for the missing run.
+
+## Use Built Artifacts With Host Spin
+
+`docker compose build` builds toolchain images only; it does not compile Wasm.
+`docker compose up` runs each language test container with the repository mounted
+at `/workspace`. Spin writes build outputs directly into the mounted
+`components/` directory on the host; no image-to-host copy step is needed.
+After the matrix run, select a profile and start Spin from the repository root:
+
+```sh
+node scripts/select-components.mjs rust,javascript,typescript --tested
+spin up -f spin.local.toml --listen 127.0.0.1:3000
+```
+
+The generated `spin.local.toml` references the Wasm files under the host's
+`components/` directory. Select only components that successfully built. F# is
+not part of the matrix and its WAGI route is known to trap under Spin 4.2.5, so
+do not use the full `spin.toml` for this host run unless you have separately
+built and intentionally want to include that route.
 
 The full local matrix also runs in GitHub Actions through the **Local Language
 Matrix** workflow. It runs weekly and can be started manually from the Actions
@@ -111,7 +134,13 @@ Images run as non-root `tester` (UID/GID 1000 by default). On Linux the reposito
 and reports must be writable by that user. Set host IDs before building/running:
 
 ```sh
-export TEST_UID="$(id -u)" TEST_GID="$(id -g)"
+export TEST_UID=1000
+export TEST_GID=1000
+
+mkdir -p reports
+chown -R "$TEST_UID:$TEST_GID" .
+
+docker compose down --volumes
 docker compose build
 docker compose up
 ```

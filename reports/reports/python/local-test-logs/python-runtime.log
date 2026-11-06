@@ -1,0 +1,20 @@
+Logging component stdio to "/workspace/reports/python/local-test-logs/python-component-logs/"
+Storing default key-value data to "/workspace/.spin/sqlite_key_value.db".
+Preparing Wasm modules is taking a few seconds...
+
+
+Serving http://127.0.0.1:37317
+Available Routes:
+  python: http://127.0.0.1:37317/api/python (wildcard)
+component=python event=request
+
+GET /api/python
+HTTP 200
+{"language": "Python", "runtime": "WASI Preview 2"}
+
+Component log: python_stderr.txt
+
+
+Component log: python_stdout.txt
+component=python event=request
+
